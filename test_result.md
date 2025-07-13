@@ -261,10 +261,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User Authentication System"
-    - "AI-Powered Proposal Evaluation"
-    - "RFP Management API"
-    - "Proposal Submission System"
+    - "Contracts Management API"
+    - "Contracts Management Interface"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
