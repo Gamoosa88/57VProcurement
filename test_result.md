@@ -343,6 +343,7 @@ metadata:
 test_plan:
   current_focus:
     - "1957 Ventures Admin Dashboard Implementation"
+    - "Admin Backend APIs"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
