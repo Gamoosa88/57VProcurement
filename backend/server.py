@@ -681,22 +681,44 @@ async def download_contract_document(contract_id: str, document_id: str, current
         logger.error(f"Error downloading document: {e}")
         raise HTTPException(status_code=500, detail="Error downloading document")
 
-async def create_demo_contracts():
-    """Create demo contracts for testing"""
+async def create_demo_data():
+    """Create demo data for testing including vendor and contracts"""
     try:
+        # First, create or get demo vendor
+        demo_vendor_email = "vendor001@techcorp.sa"
+        existing_vendor = await db.users.find_one({"email": demo_vendor_email})
+        
+        if not existing_vendor:
+            # Create demo vendor with specific ID
+            demo_vendor = User(
+                id="vendor-001",  # Use specific ID for demo
+                email=demo_vendor_email,
+                user_type="vendor",
+                company_name="TechCorp Solutions",
+                username="vendor001",
+                password_hash=hash_password("DemoVendor123!"),
+                is_approved=True  # Auto-approve for demo
+            )
+            await db.users.insert_one(demo_vendor.dict())
+            logger.info("Demo vendor created with ID: vendor-001")
+            vendor_id = "vendor-001"
+        else:
+            vendor_id = existing_vendor["id"]
+            logger.info(f"Using existing demo vendor with ID: {vendor_id}")
+        
         # Check if contracts already exist
         existing_contracts = await db.contracts.count_documents({})
         if existing_contracts > 0:
             logger.info("Demo contracts already exist, skipping creation")
             return
         
-        # Create demo contracts
+        # Create demo contracts with the correct vendor ID
         demo_contracts = [
             {
                 "id": "CTR-2025-001",
                 "rfp_id": "rfp-001",
                 "rfp_title": "Enterprise Cloud Infrastructure Modernization",
-                "vendor_id": "vendor-001",
+                "vendor_id": vendor_id,
                 "vendor_company": "TechCorp Solutions",
                 "contract_value": 750000.0,
                 "start_date": datetime(2025, 1, 15),
@@ -726,7 +748,7 @@ async def create_demo_contracts():
                 "id": "CTR-2024-018",
                 "rfp_id": "rfp-002",
                 "rfp_title": "Security Infrastructure Upgrade",
-                "vendor_id": "vendor-001",
+                "vendor_id": vendor_id,
                 "vendor_company": "TechCorp Solutions",
                 "contract_value": 180000.0,
                 "start_date": datetime(2024, 10, 1),
@@ -755,7 +777,7 @@ async def create_demo_contracts():
                 "id": "CTR-2024-012",
                 "rfp_id": "rfp-003",
                 "rfp_title": "Digital Transformation Consulting",
-                "vendor_id": "vendor-001",
+                "vendor_id": vendor_id,
                 "vendor_company": "TechCorp Solutions",
                 "contract_value": 320000.0,
                 "start_date": datetime(2024, 6, 1),
@@ -787,7 +809,12 @@ async def create_demo_contracts():
         logger.info("Demo contracts created successfully")
         
     except Exception as e:
-        logger.error(f"Error creating demo contracts: {e}")
+        logger.error(f"Error creating demo data: {e}")
+
+async def create_demo_contracts():
+    """Create demo contracts for testing"""
+    # This function is kept for backward compatibility but now calls create_demo_data
+    await create_demo_data()
 
 @app.on_event("startup")
 async def startup_event():
