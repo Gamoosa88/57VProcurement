@@ -510,6 +510,159 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             "pending_vendors": pending_vendors
         }
 
+# Contract endpoints
+@api_router.get("/contracts")
+async def get_contracts(current_user: dict = Depends(get_current_user)):
+    """Get contracts for the current user (vendor gets their contracts, admin gets all)"""
+    try:
+        if current_user["user_type"] == "vendor":
+            # Vendor sees only their contracts
+            contracts = await db.contracts.find({"vendor_id": current_user["user_id"]}).to_list(None)
+        else:
+            # Admin sees all contracts
+            contracts = await db.contracts.find().to_list(None)
+        
+        return {"contracts": contracts}
+    except Exception as e:
+        logger.error(f"Error fetching contracts: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching contracts")
+
+@api_router.get("/contracts/{contract_id}")
+async def get_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
+    """Get specific contract details"""
+    try:
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        # Check access permission
+        if current_user["user_type"] == "vendor" and contract["vendor_id"] != current_user["user_id"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        return contract
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching contract: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching contract")
+
+@api_router.post("/contracts")
+async def create_contract(contract_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new contract (admin only)"""
+    try:
+        if current_user["user_type"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can create contracts")
+        
+        # Create new contract
+        new_contract = Contract(
+            rfp_id=contract_data["rfp_id"],
+            rfp_title=contract_data["rfp_title"],
+            vendor_id=contract_data["vendor_id"],
+            vendor_company=contract_data["vendor_company"],
+            contract_value=contract_data["contract_value"],
+            start_date=datetime.fromisoformat(contract_data["start_date"]),
+            end_date=datetime.fromisoformat(contract_data["end_date"]),
+            milestones=contract_data.get("milestones", []),
+            documents=contract_data.get("documents", []),
+            pending_amount=contract_data["contract_value"]
+        )
+        
+        # Insert into database
+        await db.contracts.insert_one(new_contract.dict())
+        
+        return {"message": "Contract created successfully", "contract_id": new_contract.id}
+    except Exception as e:
+        logger.error(f"Error creating contract: {e}")
+        raise HTTPException(status_code=500, detail="Error creating contract")
+
+@api_router.put("/contracts/{contract_id}")
+async def update_contract(contract_id: str, update_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update contract details (admin only)"""
+    try:
+        if current_user["user_type"] != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can update contracts")
+        
+        # Update contract
+        update_data["updated_at"] = datetime.utcnow()
+        result = await db.contracts.update_one(
+            {"id": contract_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        return {"message": "Contract updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating contract: {e}")
+        raise HTTPException(status_code=500, detail="Error updating contract")
+
+@api_router.post("/contracts/{contract_id}/documents")
+async def upload_contract_document(contract_id: str, document_data: dict, current_user: dict = Depends(get_current_user)):
+    """Upload a document to a contract"""
+    try:
+        # Check if contract exists and user has access
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        if current_user["user_type"] == "vendor" and contract["vendor_id"] != current_user["user_id"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Add document to contract
+        document = {
+            "id": str(uuid.uuid4()),
+            "name": document_data["name"],
+            "type": document_data["type"],
+            "size": document_data["size"],
+            "content": document_data.get("content", ""),
+            "uploaded_at": datetime.utcnow(),
+            "uploaded_by": current_user["user_id"]
+        }
+        
+        await db.contracts.update_one(
+            {"id": contract_id},
+            {"$push": {"documents": document}}
+        )
+        
+        return {"message": "Document uploaded successfully", "document_id": document["id"]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading document: {e}")
+        raise HTTPException(status_code=500, detail="Error uploading document")
+
+@api_router.get("/contracts/{contract_id}/documents/{document_id}")
+async def download_contract_document(contract_id: str, document_id: str, current_user: dict = Depends(get_current_user)):
+    """Download a contract document"""
+    try:
+        # Check if contract exists and user has access
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        if current_user["user_type"] == "vendor" and contract["vendor_id"] != current_user["user_id"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Find document
+        document = None
+        for doc in contract.get("documents", []):
+            if doc["id"] == document_id:
+                document = doc
+                break
+        
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        return document
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error downloading document: {e}")
+        raise HTTPException(status_code=500, detail="Error downloading document")
+
 # Include the router in the main app
 app.include_router(api_router)
 
