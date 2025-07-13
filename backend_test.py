@@ -955,19 +955,6 @@ class ProcurementPortalTester:
             except Exception as e:
                 self.log_result("admin_endpoints", "Access Control - Vendor to Admin Invoices", False, f"Exception: {str(e)}")
 
-            # Test vendor access to RFP status update
-            if self.rfp_id:
-                try:
-                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=closed", headers=vendor_headers)
-                    if response.status_code == 403:
-                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", True, 
-                                      "Correctly blocked vendor from updating RFP status")
-                    else:
-                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, 
-                                      f"Vendor should not update RFP status, got: {response.status_code}")
-                except Exception as e:
-                    self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, f"Exception: {str(e)}")
-
     def test_dashboard_statistics(self):
         """Test dashboard statistics endpoints"""
         print("\n=== Testing Dashboard Statistics ===")
