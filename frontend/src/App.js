@@ -1973,6 +1973,36 @@ const RFPManagement = () => {
                   <span>Submit Proposal</span>
                 </button>
               )}
+
+              {user.user_type === 'admin' && (
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => alert(`Viewing all proposals for RFP: ${rfp.title}`)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center space-x-2"
+                  >
+                    <span>👁️</span>
+                    <span>View Proposals</span>
+                  </button>
+                  <button 
+                    onClick={() => alert(`Making decision on proposals for RFP: ${rfp.title}`)}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center space-x-2"
+                  >
+                    <span>⚖️</span>
+                    <span>Make Decision</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to cancel RFP: ${rfp.title}?`)) {
+                        alert(`RFP ${rfp.title} has been cancelled`);
+                      }
+                    }}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center space-x-2"
+                  >
+                    <span>❌</span>
+                    <span>Cancel RFP</span>
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
