@@ -2897,12 +2897,7 @@ function App() {
   );
 }
 
-export default App; = async () => {
-    try {
-      // Demo contracts data
-      const demoContracts = [
-        {
-          id: 'CTR-2025-001',
+export default App;
           rfp_title: 'Enterprise Cloud Infrastructure Modernization',
           contract_value: 750000,
           start_date: '2025-01-15',
