@@ -31,14 +31,24 @@ const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      // Check if it's a demo token
+      if (token && token.startsWith('demo-token-')) {
+        // For demo tokens, don't make API calls - user is already set from login
+        setLoading(false);
+        return;
+      }
+      
       const response = await axios.get(`${API}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data);
     } catch (error) {
-      localStorage.removeItem('token');
-      setToken(null);
-      setUser(null);
+      // Only clear token if it's not a demo token
+      if (!token || !token.startsWith('demo-token-')) {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      }
     }
     setLoading(false);
   };
