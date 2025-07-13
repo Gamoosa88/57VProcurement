@@ -3588,8 +3588,6 @@ const MainApp = () => {
         return <Dashboard />;
       case 'rfps':
         return <RFPManagement />;
-      case 'proposals':
-        return <ProposalManagement />;
       case 'evaluation':
         return <ProposalManagement />;
       case 'contracts':
