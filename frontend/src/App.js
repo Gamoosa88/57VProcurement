@@ -972,12 +972,61 @@ const RFPManagement = () => {
 
   const fetchRfps = async () => {
     try {
+      // Check if using demo token
+      const token = localStorage.getItem('token');
+      if (token && token.startsWith('demo-token-')) {
+        // Return demo RFPs
+        const demoRfps = [
+          {
+            id: 'demo-rfp-1',
+            title: 'Enterprise Cloud Infrastructure Modernization',
+            description: 'Comprehensive cloud migration and infrastructure modernization project for portfolio companies.',
+            budget: 750000,
+            deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            categories: ['Cloud Infrastructure', 'DevOps', 'Security'],
+            scope_of_work: 'Complete migration to AWS/Azure with security implementation and DevOps automation.',
+            status: 'active',
+            approval_level: 'cfo',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'demo-rfp-2',
+            title: 'AI-Powered Customer Analytics Platform',
+            description: 'Development of machine learning platform for customer behavior analysis.',
+            budget: 350000,
+            deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+            categories: ['AI/ML', 'Analytics', 'Software Development'],
+            scope_of_work: 'Build comprehensive analytics platform with ML capabilities for customer insights.',
+            status: 'active',
+            approval_level: 'manager',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'demo-rfp-3',
+            title: 'Cybersecurity Audit and Implementation',
+            description: 'Complete security assessment and implementation of enterprise security measures.',
+            budget: 180000,
+            deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+            categories: ['Cybersecurity', 'Compliance', 'Risk Management'],
+            scope_of_work: 'Full security audit, penetration testing, and implementation of security protocols.',
+            status: 'active',
+            approval_level: 'manager',
+            created_at: new Date().toISOString()
+          }
+        ];
+        setRfps(demoRfps);
+        setLoading(false);
+        return;
+      }
+      
       const response = await axios.get(`${API}/rfps`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setRfps(response.data);
     } catch (error) {
       console.error('Error fetching RFPs:', error);
+      // Fallback to demo data
+      setRfps([]);
     }
     setLoading(false);
   };
