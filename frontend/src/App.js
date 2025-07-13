@@ -750,9 +750,7 @@ const Navbar = ({ onNavigate, currentView }) => {
       return [
         { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
         { id: 'rfps', label: '🔁 Manage RFPs', icon: '🔁' },
-        { id: 'proposals', label: '📥 Proposals Inbox', icon: '📥' },
-        { id: 'evaluation', label: '🧠 AI Evaluation', icon: '🧠' },
-        { id: 'vendors', label: '🧑‍💼 Vendor Directory', icon: '🧑‍💼' }
+        { id: 'evaluation', label: '🧠 AI Evaluation', icon: '🧠' }
       ];
     }
   };
