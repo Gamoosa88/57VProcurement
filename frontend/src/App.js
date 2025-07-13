@@ -1261,6 +1261,334 @@ const Dashboard = () => {
               </form>
             </div>
           )}
+
+          {/* Admin-specific modals */}
+          {activeModal === 'create-rfp' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Create New RFP</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <form onSubmit={(e) => { e.preventDefault(); alert('RFP created successfully!'); closeModal(); }} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">RFP Title</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter RFP title..."
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32"
+                    placeholder="Enter detailed description..."
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Budget (SAR)</label>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter budget amount..."
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter categories (comma-separated)..."
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Scope of Work</label>
+                  <textarea
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
+                    placeholder="Enter scope of work..."
+                    required
+                  />
+                </div>
+                
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Create RFP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeModal === 'proposal-inbox' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Proposal Inbox</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'P001', rfp: 'Enterprise Cloud Infrastructure', vendor: 'TechCorp Solutions', submitted: '2025-01-15', status: 'Under Review', score: 85.1 },
+                  { id: 'P002', rfp: 'AI Analytics Platform', vendor: 'DataSoft Inc.', submitted: '2025-01-14', status: 'Evaluated', score: 78.5 },
+                  { id: 'P003', rfp: 'Cybersecurity Audit', vendor: 'SecureNet Ltd.', submitted: '2025-01-13', status: 'Pending', score: null },
+                  { id: 'P004', rfp: 'Digital Transformation', vendor: 'InnovateCorp', submitted: '2025-01-12', status: 'Rejected', score: 62.3 }
+                ].map(proposal => (
+                  <div key={proposal.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{proposal.rfp}</h3>
+                        <p className="text-gray-600">Proposal #{proposal.id} by {proposal.vendor}</p>
+                        <p className="text-sm text-gray-500">Submitted: {proposal.submitted}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          proposal.status === 'Evaluated' ? 'bg-green-100 text-green-800' :
+                          proposal.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
+                          proposal.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {proposal.status}
+                        </span>
+                        {proposal.score && (
+                          <div className="mt-1 text-sm font-semibold text-blue-600">
+                            AI Score: {proposal.score}/100
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => alert(`Viewing proposal ${proposal.id} details`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        View Details
+                      </button>
+                      {proposal.status === 'Pending' && (
+                        <button 
+                          onClick={() => alert(`Evaluating proposal ${proposal.id} with AI`)}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                        >
+                          🧠 AI Evaluate
+                        </button>
+                      )}
+                      {proposal.status === 'Evaluated' && (
+                        <button 
+                          onClick={() => alert(`Awarding contract for proposal ${proposal.id}`)}
+                          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                        >
+                          Award Contract
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeModal === 'vendor-management' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Vendor Management</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'V001', company: 'TechCorp Solutions', email: 'contact@techcorp.com', status: 'Approved', joined: '2024-12-15', contracts: 3 },
+                  { id: 'V002', company: 'DataSoft Inc.', email: 'info@datasoft.com', status: 'Pending', joined: '2025-01-10', contracts: 0 },
+                  { id: 'V003', company: 'SecureNet Ltd.', email: 'sales@securenet.com', status: 'Approved', joined: '2024-11-20', contracts: 1 },
+                  { id: 'V004', company: 'InnovateCorp', email: 'team@innovate.com', status: 'Rejected', joined: '2025-01-05', contracts: 0 }
+                ].map(vendor => (
+                  <div key={vendor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{vendor.company}</h3>
+                        <p className="text-gray-600">{vendor.email}</p>
+                        <p className="text-sm text-gray-500">Joined: {vendor.joined}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          vendor.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                          vendor.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {vendor.status}
+                        </span>
+                        <div className="mt-1 text-sm text-gray-600">
+                          {vendor.contracts} active contracts
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => alert(`Viewing vendor ${vendor.company} profile`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        View Profile
+                      </button>
+                      {vendor.status === 'Pending' && (
+                        <>
+                          <button 
+                            onClick={() => alert(`Approving vendor ${vendor.company}`)}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                          >
+                            ✓ Approve
+                          </button>
+                          <button 
+                            onClick={() => alert(`Rejecting vendor ${vendor.company}`)}
+                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                          >
+                            ✗ Reject
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeModal === 'invoice-tracking' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Invoice & Contract Tracking</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'INV-001', contract: 'Enterprise Cloud Infrastructure', vendor: 'TechCorp Solutions', amount: '487,500 SAR', status: 'Paid', dueDate: '2025-02-15' },
+                  { id: 'INV-002', contract: 'Security Infrastructure Upgrade', vendor: 'TechCorp Solutions', amount: '180,000 SAR', status: 'Paid', dueDate: '2024-12-31' },
+                  { id: 'INV-003', contract: 'Digital Transformation Consulting', vendor: 'TechCorp Solutions', amount: '320,000 SAR', status: 'Paid', dueDate: '2024-09-30' },
+                  { id: 'INV-004', contract: 'AI Analytics Platform', vendor: 'DataSoft Inc.', amount: '225,000 SAR', status: 'Pending', dueDate: '2025-02-28' }
+                ].map(invoice => (
+                  <div key={invoice.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{invoice.contract}</h3>
+                        <p className="text-gray-600">Invoice #{invoice.id} - {invoice.vendor}</p>
+                        <p className="text-sm text-gray-500">Due: {invoice.dueDate}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-gray-900">{invoice.amount}</div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          invoice.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                          invoice.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {invoice.status}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => alert(`Viewing invoice ${invoice.id} details`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        onClick={() => alert(`Downloading invoice ${invoice.id}`)}
+                        className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                      >
+                        📄 Download
+                      </button>
+                      {invoice.status === 'Pending' && (
+                        <button 
+                          onClick={() => alert(`Processing payment for invoice ${invoice.id}`)}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                        >
+                          💳 Process Payment
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
