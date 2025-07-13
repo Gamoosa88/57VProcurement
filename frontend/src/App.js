@@ -2438,6 +2438,389 @@ const ProposalManagement = () => {
   );
 };
 
+// Contracts Management Component
+const ContractsManagement = () => {
+  const { user } = useAuth();
+  const [contracts, setContracts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    fetchContracts();
+  }, []);
+
+  const fetchContracts = async () => {
+    try {
+      // Demo contracts data
+      const demoContracts = [
+        {
+          id: 'CTR-2025-001',
+          rfp_title: 'Enterprise Cloud Infrastructure Modernization',
+          contract_value: 750000,
+          start_date: '2025-01-15',
+          end_date: '2025-04-15',
+          status: 'active',
+          progress: 65,
+          milestones: [
+            { name: 'Infrastructure Assessment', status: 'completed', date: '2025-01-30' },
+            { name: 'Migration Planning', status: 'completed', date: '2025-02-15' },
+            { name: 'Cloud Setup & Testing', status: 'in_progress', date: '2025-03-01' },
+            { name: 'Data Migration', status: 'pending', date: '2025-03-15' },
+            { name: 'Go-Live & Support', status: 'pending', date: '2025-04-01' }
+          ],
+          next_milestone: 'Cloud Setup & Testing',
+          payment_status: 'partial_paid',
+          paid_amount: 487500,
+          pending_amount: 262500,
+          documents: [
+            { name: 'Signed Contract', type: 'pdf', size: '2.4 MB' },
+            { name: 'Statement of Work', type: 'pdf', size: '1.8 MB' },
+            { name: 'Technical Specifications', type: 'pdf', size: '3.2 MB' }
+          ]
+        },
+        {
+          id: 'CTR-2024-018',
+          rfp_title: 'Security Infrastructure Upgrade',
+          contract_value: 180000,
+          start_date: '2024-10-01',
+          end_date: '2024-12-31',
+          status: 'completed',
+          progress: 100,
+          milestones: [
+            { name: 'Security Assessment', status: 'completed', date: '2024-10-15' },
+            { name: 'Implementation Phase 1', status: 'completed', date: '2024-11-15' },
+            { name: 'Implementation Phase 2', status: 'completed', date: '2024-12-15' },
+            { name: 'Final Testing & Handover', status: 'completed', date: '2024-12-30' }
+          ],
+          payment_status: 'fully_paid',
+          paid_amount: 180000,
+          pending_amount: 0,
+          documents: [
+            { name: 'Signed Contract', type: 'pdf', size: '2.1 MB' },
+            { name: 'Completion Certificate', type: 'pdf', size: '1.2 MB' },
+            { name: 'Security Audit Report', type: 'pdf', size: '4.5 MB' },
+            { name: 'Final Invoice', type: 'pdf', size: '890 KB' }
+          ]
+        },
+        {
+          id: 'CTR-2024-012',
+          rfp_title: 'Digital Transformation Consulting',
+          contract_value: 320000,
+          start_date: '2024-06-01',
+          end_date: '2024-09-30',
+          status: 'completed',
+          progress: 100,
+          milestones: [
+            { name: 'Current State Analysis', status: 'completed', date: '2024-06-30' },
+            { name: 'Strategy Development', status: 'completed', date: '2024-07-31' },
+            { name: 'Implementation Planning', status: 'completed', date: '2024-08-31' },
+            { name: 'Knowledge Transfer', status: 'completed', date: '2024-09-30' }
+          ],
+          payment_status: 'fully_paid',
+          paid_amount: 320000,
+          pending_amount: 0,
+          documents: [
+            { name: 'Signed Contract', type: 'pdf', size: '2.8 MB' },
+            { name: 'Digital Strategy Report', type: 'pdf', size: '6.2 MB' },
+            { name: 'Implementation Roadmap', type: 'pdf', size: '3.1 MB' },
+            { name: 'Final Deliverables', type: 'zip', size: '15.4 MB' }
+          ]
+        }
+      ];
+      
+      setContracts(demoContracts);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching contracts:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = (contractId, documentName) => {
+    // Show download notification
+    setNotification({
+      type: 'success',
+      message: `${documentName} downloaded successfully!`,
+      contractId: contractId
+    });
+    
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'active':
+        return '⚡';
+      case 'completed':
+        return '✅';
+      case 'pending':
+        return '⏳';
+      default:
+        return '📋';
+    }
+  };
+
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case 'fully_paid':
+        return 'bg-green-100 text-green-800';
+      case 'partial_paid':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'unpaid':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const filteredContracts = filterStatus === 'all' 
+    ? contracts 
+    : contracts.filter(contract => contract.status === filterStatus);
+
+  if (loading) return <div className="p-6">Loading...</div>;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">My Contracts</h1>
+          <div className="flex items-center space-x-3">
+            <span className="text-sm text-gray-600">Total Value:</span>
+            <span className="text-lg font-bold text-green-600">
+              {contracts.reduce((sum, contract) => sum + contract.contract_value, 0).toLocaleString()} SAR
+            </span>
+          </div>
+        </div>
+
+        {/* Notification */}
+        {notification && (
+          <div className="fixed top-4 right-4 z-50 bg-white border border-green-200 rounded-lg shadow-lg p-4 flex items-center space-x-3">
+            <div className="text-green-600 text-xl">📥</div>
+            <div>
+              <p className="font-medium text-gray-900">Download Complete</p>
+              <p className="text-sm text-gray-600">{notification.message}</p>
+            </div>
+            <button 
+              onClick={() => setNotification(null)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Status Filter */}
+        <div className="mb-6 flex space-x-4">
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-blue-50'
+            }`}
+          >
+            All Contracts ({contracts.length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('active')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filterStatus === 'active' ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-green-50'
+            }`}
+          >
+            Active ({contracts.filter(c => c.status === 'active').length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('completed')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filterStatus === 'completed' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-blue-50'
+            }`}
+          >
+            Completed ({contracts.filter(c => c.status === 'completed').length})
+          </button>
+        </div>
+
+        {/* Contracts Grid */}
+        <div className="grid gap-6">
+          {filteredContracts.map(contract => (
+            <div key={contract.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+              {/* Contract Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{contract.rfp_title}</h3>
+                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <span>📋 Contract: {contract.id}</span>
+                    <span>📅 {new Date(contract.start_date).toLocaleDateString()} - {new Date(contract.end_date).toLocaleDateString()}</span>
+                    <span>💰 {contract.contract_value.toLocaleString()} SAR</span>
+                  </div>
+                </div>
+                
+                <div className="text-right">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(contract.status)}`}>
+                    {getStatusIcon(contract.status)} {contract.status.toUpperCase()}
+                  </span>
+                  <div className="mt-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(contract.payment_status)}`}>
+                      {contract.payment_status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress & Payment Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Progress */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">Project Progress</span>
+                    <span className="text-sm font-bold text-blue-600">{contract.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${contract.progress}%` }}
+                    ></div>
+                  </div>
+                  {contract.status === 'active' && (
+                    <p className="text-xs text-gray-600 mt-1">Next: {contract.next_milestone}</p>
+                  )}
+                </div>
+
+                {/* Payment Status */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">Payment Status</span>
+                    <span className="text-sm font-bold text-green-600">
+                      {contract.paid_amount.toLocaleString()} SAR
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${(contract.paid_amount / contract.contract_value) * 100}%` }}
+                    ></div>
+                  </div>
+                  {contract.pending_amount > 0 && (
+                    <p className="text-xs text-gray-600 mt-1">Pending: {contract.pending_amount.toLocaleString()} SAR</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Milestones */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Project Milestones</h4>
+                <div className="space-y-2">
+                  {contract.milestones.map((milestone, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        milestone.status === 'completed' ? 'bg-green-500' :
+                        milestone.status === 'in_progress' ? 'bg-blue-500' :
+                        'bg-gray-300'
+                      }`}></div>
+                      <span className={`text-sm ${
+                        milestone.status === 'completed' ? 'text-gray-900' :
+                        milestone.status === 'in_progress' ? 'text-blue-600 font-medium' :
+                        'text-gray-500'
+                      }`}>
+                        {milestone.name}
+                      </span>
+                      <span className="text-xs text-gray-500">({milestone.date})</span>
+                      {milestone.status === 'completed' && <span className="text-green-500">✓</span>}
+                      {milestone.status === 'in_progress' && <span className="text-blue-500">⚡</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Documents */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Contract Documents</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {contract.documents.map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">
+                          {doc.type === 'pdf' ? '📄' : doc.type === 'zip' ? '📦' : '📎'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.name}</p>
+                          <p className="text-xs text-gray-500">{doc.size}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDownload(contract.id, doc.name)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center space-x-1"
+                      >
+                        <span>📥</span>
+                        <span>Download</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 flex space-x-3">
+                {contract.status === 'active' && (
+                  <>
+                    <button 
+                      onClick={() => alert(`Opening milestone tracking for ${contract.rfp_title}`)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      📊 Track Milestones
+                    </button>
+                    <button 
+                      onClick={() => alert(`Opening invoice upload for ${contract.rfp_title}`)}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    >
+                      📄 Upload Invoice
+                    </button>
+                  </>
+                )}
+                <button 
+                  onClick={() => alert(`Opening full contract details for ${contract.id}`)}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                >
+                  👁️ View Full Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredContracts.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📋</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              {filterStatus === 'all' ? 'No contracts yet' : `No ${filterStatus} contracts`}
+            </h3>
+            <p className="text-gray-600">
+              {filterStatus === 'all' 
+                ? 'Your awarded proposals will appear here as contracts'
+                : `You don't have any ${filterStatus} contracts at the moment`
+              }
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 const MainApp = () => {
   const { user, loading } = useAuth();
