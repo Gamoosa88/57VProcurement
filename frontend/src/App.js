@@ -1684,6 +1684,219 @@ const Dashboard = () => {
   );
 };
 
+// Chatbot Component
+const Chatbot = ({ userType }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    // Initial welcome message
+    const welcomeMessage = userType === 'admin' 
+      ? "👋 Hi! I'm your 1957 Ventures admin assistant. I can help you with RFP management, proposal evaluation, vendor approval, and more!"
+      : "👋 Hi! I'm your vendor assistant. I can help you with proposal submissions, contract management, RFPs, and dashboard navigation!";
+    
+    setMessages([{
+      id: 1,
+      text: welcomeMessage,
+      isBot: true,
+      timestamp: new Date()
+    }]);
+  }, [userType]);
+
+  const getResponse = (message) => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (userType === 'admin') {
+      // Admin-specific responses
+      if (lowerMessage.includes('rfp') || lowerMessage.includes('request for proposal')) {
+        return "📋 RFP Management: You can create new RFPs, view proposals, make decisions, and cancel RFPs through the 'Manage RFPs' tab. Each RFP has three action buttons: View Proposals (green), Make Decision (purple), and Cancel RFP (red).";
+      }
+      if (lowerMessage.includes('proposal') || lowerMessage.includes('evaluate')) {
+        return "🧠 Proposal Evaluation: Use the 'AI Evaluation' tab to review proposals with AI scoring (70% commercial, 30% technical). You can accept, reject, or request revisions for each proposal.";
+      }
+      if (lowerMessage.includes('vendor') || lowerMessage.includes('approve')) {
+        return "👥 Vendor Management: Access vendor approval through the 'Vendor Management' quick action on your dashboard. You can approve/reject vendors and view their profiles.";
+      }
+      if (lowerMessage.includes('dashboard') || lowerMessage.includes('stats')) {
+        return "📊 Dashboard Overview: Your dashboard shows Total RFPs (12), Total Proposals (25), and Pending Vendors (3). Use Quick Actions for fast access to key functions.";
+      }
+      if (lowerMessage.includes('invoice') || lowerMessage.includes('contract')) {
+        return "💰 Invoice & Contract Tracking: Monitor all vendor invoices and contracts through the 'Invoice Tracking' quick action. View payment status and download documents.";
+      }
+      if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+        return "🔧 I can help with: RFP creation & management, Proposal evaluation & decisions, Vendor approval processes, Invoice tracking, Dashboard navigation, and AI evaluation features.";
+      }
+    } else {
+      // Vendor-specific responses
+      if (lowerMessage.includes('proposal') || lowerMessage.includes('submit')) {
+        return "📝 Proposal Submission: Click 'Submit Proposal' from the dashboard or go to 'Available RFPs' tab. Upload technical and commercial documents, add notes, and submit. You'll receive AI evaluation feedback.";
+      }
+      if (lowerMessage.includes('contract') || lowerMessage.includes('awarded')) {
+        return "📄 Contract Management: View your contracts in the 'Contracts' section. Track progress, payment status, milestones, and download documents. Upload invoices for active contracts.";
+      }
+      if (lowerMessage.includes('rfp') || lowerMessage.includes('opportunities')) {
+        return "🔍 Available RFPs: Browse active opportunities, view budgets, deadlines, and requirements. Submit proposals directly from the RFP details page.";
+      }
+      if (lowerMessage.includes('dashboard') || lowerMessage.includes('stats')) {
+        return "📊 Dashboard Overview: Your dashboard shows Total Proposals (5), Awarded Contracts (2), and Active RFPs (8). Use Quick Actions for common tasks.";
+      }
+      if (lowerMessage.includes('notification') || lowerMessage.includes('updates')) {
+        return "🔔 Notifications: Stay updated on RFP deadlines, proposal evaluations, contract milestones, and payment confirmations through the notifications panel.";
+      }
+      if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+        return "🔧 I can help with: Proposal submissions, Contract management, RFP browsing, Dashboard navigation, Notification settings, and Document uploads.";
+      }
+    }
+
+    // General responses
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+      return "👋 Hello! How can I assist you with your procurement portal today?";
+    }
+    if (lowerMessage.includes('thank')) {
+      return "😊 You're welcome! Feel free to ask if you need any other help.";
+    }
+
+    // Default response
+    return "🤔 I'm not sure about that specific question. Try asking about: RFPs, proposals, contracts, dashboard features, or type 'help' to see what I can assist with.";
+  };
+
+  const sendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage = {
+      id: Date.now(),
+      text: inputMessage,
+      isBot: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsTyping(true);
+
+    // Simulate typing delay
+    setTimeout(() => {
+      const botResponse = {
+        id: Date.now() + 1,
+        text: getResponse(inputMessage),
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
+  return (
+    <>
+      {/* Chat Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 transform hover:scale-110 flex items-center space-x-2"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="hidden md:block">Help</span>
+          </button>
+        )}
+      </div>
+
+      {/* Chat Interface */}
+      {isOpen && (
+        <div className="fixed bottom-6 right-6 z-50 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col">
+          {/* Chat Header */}
+          <div className="p-4 bg-blue-600 text-white rounded-t-2xl flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                🤖
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Assistant</h3>
+                <p className="text-xs opacity-90">
+                  {userType === 'admin' ? '1957 Ventures Support' : 'Vendor Support'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 text-xl"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+              >
+                <div
+                  className={`max-w-xs p-3 rounded-lg text-sm ${
+                    message.isBot
+                      ? 'bg-gray-100 text-gray-800'
+                      : 'bg-blue-600 text-white'
+                  }`}
+                >
+                  {message.text}
+                </div>
+              </div>
+            ))}
+            
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 text-gray-800 p-3 rounded-lg text-sm">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input Area */}
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your question..."
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+              <button
+                onClick={sendMessage}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 // Keep the same RFP and Proposal management components from before
 const RFPManagement = () => {
   const { user } = useAuth();
