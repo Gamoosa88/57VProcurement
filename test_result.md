@@ -279,7 +279,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Contracts Management Interface"
+    - "1957 Ventures Admin Dashboard Implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
