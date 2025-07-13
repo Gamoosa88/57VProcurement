@@ -2914,7 +2914,7 @@ const MainApp = () => {
       case 'evaluation':
         return <ProposalManagement />;
       case 'contracts':
-        return <div className="p-6"><h1 className="text-2xl font-bold">Contracts - Coming Soon</h1></div>;
+        return <ContractsManagement />;
       case 'vendors':
         return <div className="p-6"><h1 className="text-2xl font-bold">Vendor Directory - Coming Soon</h1></div>;
       default:
