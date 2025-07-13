@@ -853,6 +853,8 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeModal, setActiveModal] = useState(null);
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     fetchStats();
@@ -887,6 +889,39 @@ const Dashboard = () => {
     setLoading(false);
   };
 
+  // Modal handlers
+  const openModal = (modalType) => {
+    setActiveModal(modalType);
+    setFormData({});
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setFormData({});
+  };
+
+  // Form handlers
+  const handleSubmitProposal = (e) => {
+    e.preventDefault();
+    alert(`Proposal submitted for RFP: ${formData.rfpTitle}\nTechnical Doc: ${formData.technicalDoc ? 'Uploaded' : 'Not uploaded'}\nCommercial Doc: ${formData.commercialDoc ? 'Uploaded' : 'Not uploaded'}`);
+    closeModal();
+  };
+
+  const handleViewContracts = (contractId) => {
+    alert(`Opening contract details for Contract #${contractId}`);
+    closeModal();
+  };
+
+  const handleNotificationAction = (notificationId, action) => {
+    alert(`${action} notification #${notificationId}`);
+  };
+
+  const handleUpdateSettings = (e) => {
+    e.preventDefault();
+    alert(`Settings updated!\nCompany: ${formData.companyName}\nEmail: ${formData.email}\nNotifications: ${formData.notifications ? 'Enabled' : 'Disabled'}`);
+    closeModal();
+  };
+
   if (loading) return <div className="p-6">Loading...</div>;
 
   // Show waiting approval for unapproved vendors
@@ -908,6 +943,327 @@ const Dashboard = () => {
         { title: 'Pending Vendors', value: stats?.pending_vendors || 0, icon: '⏳', color: 'orange' }
       ];
     }
+  };
+
+  const renderModal = () => {
+    if (!activeModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+          {activeModal === 'submit-proposal' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Submit New Proposal</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <form onSubmit={handleSubmitProposal} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select RFP
+                  </label>
+                  <select
+                    value={formData.rfpTitle || ''}
+                    onChange={(e) => setFormData({...formData, rfpTitle: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Choose an RFP</option>
+                    <option value="Enterprise Cloud Infrastructure">Enterprise Cloud Infrastructure - 750,000 SAR</option>
+                    <option value="AI-Powered Analytics Platform">AI-Powered Analytics Platform - 350,000 SAR</option>
+                    <option value="Cybersecurity Audit">Cybersecurity Audit - 180,000 SAR</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Technical Document
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setFormData({...formData, technicalDoc: e.target.files[0]})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Commercial Document
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                      onChange={(e) => setFormData({...formData, commercialDoc: e.target.files[0]})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Additional Notes
+                  </label>
+                  <textarea
+                    value={formData.notes || ''}
+                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
+                    placeholder="Any additional information about your proposal..."
+                  />
+                </div>
+
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Submit Proposal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeModal === 'view-contracts' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">My Contracts</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'C001', title: 'Cloud Infrastructure Project', status: 'Active', value: '750,000 SAR', deadline: '2025-09-15' },
+                  { id: 'C002', title: 'Security Audit Implementation', status: 'Completed', value: '180,000 SAR', deadline: '2025-08-30' }
+                ].map(contract => (
+                  <div key={contract.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{contract.title}</h3>
+                        <p className="text-gray-600">Contract #{contract.id}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        contract.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {contract.status}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Contract Value</p>
+                        <p className="font-semibold">{contract.value}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Deadline</p>
+                        <p className="font-semibold">{contract.deadline}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => handleViewContracts(contract.id)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        View Details
+                      </button>
+                      {contract.status === 'Active' && (
+                        <button 
+                          onClick={() => alert(`Uploading invoice for ${contract.title}`)}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                        >
+                          Upload Invoice
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeModal === 'notifications' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 1, title: 'New RFP Available', message: 'Enterprise Cloud Infrastructure project is now open for proposals', type: 'info', time: '2 hours ago' },
+                  { id: 2, title: 'Proposal Evaluated', message: 'Your proposal for AI Analytics Platform has been evaluated with AI scoring', type: 'success', time: '1 day ago' },
+                  { id: 3, title: 'Contract Milestone Due', message: 'Security Audit phase 2 milestone is due in 3 days', type: 'warning', time: '2 days ago' },
+                  { id: 4, title: 'Payment Received', message: 'Invoice #INV-2024-001 has been processed and payment initiated', type: 'success', time: '3 days ago' }
+                ].map(notification => (
+                  <div key={notification.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-gray-900">{notification.title}</h3>
+                      <span className="text-sm text-gray-500">{notification.time}</span>
+                    </div>
+                    <p className="text-gray-600 mb-3">{notification.message}</p>
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => handleNotificationAction(notification.id, 'Mark as Read')}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                      >
+                        Mark as Read
+                      </button>
+                      <button 
+                        onClick={() => handleNotificationAction(notification.id, 'Archive')}
+                        className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors"
+                      >
+                        Archive
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={closeModal}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeModal === 'settings' && (
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Account Settings</h2>
+                <button 
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <form onSubmit={handleUpdateSettings} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.companyName || user.company_name || ''}
+                      onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email || user.email || ''}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone || ''}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+966 50 123 4567"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Business Address
+                  </label>
+                  <textarea
+                    value={formData.address || ''}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20"
+                    placeholder="Enter your business address..."
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="notifications"
+                    type="checkbox"
+                    checked={formData.notifications || false}
+                    onChange={(e) => setFormData({...formData, notifications: e.target.checked})}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="notifications" className="ml-2 block text-sm text-gray-900">
+                    Receive email notifications for new RFPs and updates
+                  </label>
+                </div>
+
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Update Settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -939,28 +1295,40 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Quick Actions */}
+        {/* Interactive Quick Actions */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {user.user_type === 'vendor' ? (
               <>
-                <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left">
+                <button 
+                  onClick={() => openModal('submit-proposal')}
+                  className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">📝</div>
                   <div className="font-semibold text-gray-900">Submit Proposal</div>
                   <div className="text-sm text-gray-600">Submit to active RFPs</div>
                 </button>
-                <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left">
+                <button 
+                  onClick={() => openModal('view-contracts')}
+                  className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">📄</div>
                   <div className="font-semibold text-gray-900">View Contracts</div>
                   <div className="text-sm text-gray-600">Manage awarded contracts</div>
                 </button>
-                <button className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left">
+                <button 
+                  onClick={() => openModal('notifications')}
+                  className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">🔔</div>
                   <div className="font-semibold text-gray-900">Notifications</div>
                   <div className="text-sm text-gray-600">View updates</div>
                 </button>
-                <button className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left">
+                <button 
+                  onClick={() => openModal('settings')}
+                  className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">⚙️</div>
                   <div className="font-semibold text-gray-900">Settings</div>
                   <div className="text-sm text-gray-600">Account settings</div>
@@ -968,22 +1336,22 @@ const Dashboard = () => {
               </>
             ) : (
               <>
-                <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left">
+                <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left transform hover:scale-105 duration-200">
                   <div className="text-2xl mb-2">➕</div>
                   <div className="font-semibold text-gray-900">Create RFP</div>
                   <div className="text-sm text-gray-600">Post new opportunities</div>
                 </button>
-                <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left">
+                <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left transform hover:scale-105 duration-200">
                   <div className="text-2xl mb-2">🧠</div>
                   <div className="font-semibold text-gray-900">AI Evaluation</div>
                   <div className="text-sm text-gray-600">Review proposals</div>
                 </button>
-                <button className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left">
+                <button className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left transform hover:scale-105 duration-200">
                   <div className="text-2xl mb-2">👥</div>
                   <div className="font-semibold text-gray-900">Vendor Management</div>
                   <div className="text-sm text-gray-600">Approve vendors</div>
                 </button>
-                <button className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left">
+                <button className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left transform hover:scale-105 duration-200">
                   <div className="text-2xl mb-2">📊</div>
                   <div className="font-semibold text-gray-900">Reports</div>
                   <div className="text-sm text-gray-600">Analytics dashboard</div>
@@ -993,6 +1361,9 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Render Modal */}
+      {renderModal()}
     </div>
   );
 };
