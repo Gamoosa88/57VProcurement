@@ -736,6 +736,221 @@ class ProcurementPortalTester:
             except Exception as e:
                 self.log_result("contracts", "Demo Contracts Creation", False, f"Exception: {str(e)}")
 
+    def test_admin_endpoints(self):
+        """Test new admin-specific endpoints for vendor management, RFP status updates, and invoice tracking"""
+        print("\n=== Testing Admin Management Endpoints ===")
+        
+        if not self.admin_token:
+            self.log_result("admin_endpoints", "Admin Token Check", False, "No admin token available")
+            return
+
+        admin_headers = {"Authorization": f"Bearer {self.admin_token}"}
+        
+        # Test 1: GET /api/admin/vendors - Get all vendors for admin management
+        try:
+            response = requests.get(f"{API_URL}/admin/vendors", headers=admin_headers)
+            if response.status_code == 200:
+                vendors = response.json()
+                if isinstance(vendors, list):
+                    self.log_result("admin_endpoints", "Admin Vendor Management - Get All Vendors", True, 
+                                  f"Retrieved {len(vendors)} vendors with proper data structure")
+                    
+                    # Verify vendor data structure
+                    if vendors:
+                        sample_vendor = vendors[0]
+                        required_fields = ["id", "email", "company_name", "is_approved", "created_at"]
+                        missing_fields = [field for field in required_fields if field not in sample_vendor]
+                        
+                        if not missing_fields:
+                            self.log_result("admin_endpoints", "Vendor Data Structure", True, 
+                                          "All required vendor fields present")
+                        else:
+                            self.log_result("admin_endpoints", "Vendor Data Structure", False, 
+                                          f"Missing fields: {missing_fields}")
+                else:
+                    self.log_result("admin_endpoints", "Admin Vendor Management - Get All Vendors", False, 
+                                  "Invalid response format - expected list")
+            else:
+                self.log_result("admin_endpoints", "Admin Vendor Management - Get All Vendors", False, 
+                              f"Status: {response.status_code}, Response: {response.text}")
+        except Exception as e:
+            self.log_result("admin_endpoints", "Admin Vendor Management - Get All Vendors", False, f"Exception: {str(e)}")
+
+        # Test 2: Test vendor approval/rejection functionality
+        # First, create a test vendor to approve/reject
+        test_vendor_data = {
+            "email": "testvendor@example.sa",
+            "password": "TestVendor123!",
+            "user_type": "vendor",
+            "company_name": "Test Vendor Company",
+            "username": "testvendor",
+            "cr_number": "1010987654",
+            "country": "Saudi Arabia"
+        }
+        
+        test_vendor_id = None
+        try:
+            response = requests.post(f"{API_URL}/auth/signup", json=test_vendor_data)
+            if response.status_code == 200:
+                test_vendor_id = response.json().get("user", {}).get("id")
+                self.log_result("admin_endpoints", "Test Vendor Creation", True, 
+                              f"Test vendor created with ID: {test_vendor_id}")
+            else:
+                # Vendor might already exist, try to get vendor list to find ID
+                response = requests.get(f"{API_URL}/admin/vendors", headers=admin_headers)
+                if response.status_code == 200:
+                    vendors = response.json()
+                    for vendor in vendors:
+                        if vendor.get("email") == test_vendor_data["email"]:
+                            test_vendor_id = vendor.get("id")
+                            break
+                    if test_vendor_id:
+                        self.log_result("admin_endpoints", "Test Vendor Found", True, 
+                                      f"Using existing test vendor with ID: {test_vendor_id}")
+        except Exception as e:
+            self.log_result("admin_endpoints", "Test Vendor Setup", False, f"Exception: {str(e)}")
+
+        # Test 3: PUT /api/admin/vendors/{vendor_id}/approve - Approve a vendor
+        if test_vendor_id:
+            try:
+                response = requests.put(f"{API_URL}/admin/vendors/{test_vendor_id}/approve", headers=admin_headers)
+                if response.status_code == 200:
+                    result = response.json()
+                    if "approved successfully" in result.get("message", "").lower():
+                        self.log_result("admin_endpoints", "Vendor Approval", True, 
+                                      f"Vendor {test_vendor_id} approved successfully")
+                    else:
+                        self.log_result("admin_endpoints", "Vendor Approval", False, 
+                                      f"Unexpected response message: {result.get('message')}")
+                else:
+                    self.log_result("admin_endpoints", "Vendor Approval", False, 
+                                  f"Status: {response.status_code}, Response: {response.text}")
+            except Exception as e:
+                self.log_result("admin_endpoints", "Vendor Approval", False, f"Exception: {str(e)}")
+
+            # Test 4: PUT /api/admin/vendors/{vendor_id}/reject - Reject a vendor
+            try:
+                response = requests.put(f"{API_URL}/admin/vendors/{test_vendor_id}/reject", headers=admin_headers)
+                if response.status_code == 200:
+                    result = response.json()
+                    if "rejected successfully" in result.get("message", "").lower():
+                        self.log_result("admin_endpoints", "Vendor Rejection", True, 
+                                      f"Vendor {test_vendor_id} rejected successfully")
+                    else:
+                        self.log_result("admin_endpoints", "Vendor Rejection", False, 
+                                      f"Unexpected response message: {result.get('message')}")
+                else:
+                    self.log_result("admin_endpoints", "Vendor Rejection", False, 
+                                  f"Status: {response.status_code}, Response: {response.text}")
+            except Exception as e:
+                self.log_result("admin_endpoints", "Vendor Rejection", False, f"Exception: {str(e)}")
+
+        # Test 5: PUT /api/rfps/{rfp_id}/status - Update RFP status
+        if self.rfp_id:
+            # Test updating RFP status to different valid statuses
+            valid_statuses = ["active", "closed", "awarded", "draft"]
+            
+            for status in ["closed", "active"]:  # Test a couple of status changes
+                try:
+                    # Use query parameter for status
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status={status}", headers=admin_headers)
+                    if response.status_code == 200:
+                        result = response.json()
+                        if f"updated to {status}" in result.get("message", "").lower():
+                            self.log_result("admin_endpoints", f"RFP Status Update to {status}", True, 
+                                          f"RFP status updated to {status} successfully")
+                        else:
+                            self.log_result("admin_endpoints", f"RFP Status Update to {status}", False, 
+                                          f"Unexpected response message: {result.get('message')}")
+                    else:
+                        self.log_result("admin_endpoints", f"RFP Status Update to {status}", False, 
+                                      f"Status: {response.status_code}, Response: {response.text}")
+                except Exception as e:
+                    self.log_result("admin_endpoints", f"RFP Status Update to {status}", False, f"Exception: {str(e)}")
+
+            # Test invalid status
+            try:
+                response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=invalid_status", headers=admin_headers)
+                if response.status_code == 400:
+                    self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", True, 
+                                  "Correctly rejected invalid status")
+                else:
+                    self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", False, 
+                                  f"Should have rejected invalid status, got: {response.status_code}")
+            except Exception as e:
+                self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", False, f"Exception: {str(e)}")
+
+        # Test 6: GET /api/admin/invoices - Get all invoices for admin tracking
+        try:
+            response = requests.get(f"{API_URL}/admin/invoices", headers=admin_headers)
+            if response.status_code == 200:
+                invoices = response.json()
+                if isinstance(invoices, list):
+                    self.log_result("admin_endpoints", "Admin Invoice Tracking", True, 
+                                  f"Retrieved {len(invoices)} invoices for admin tracking")
+                    
+                    # Verify invoice data structure
+                    if invoices:
+                        sample_invoice = invoices[0]
+                        required_fields = ["id", "contract_id", "contract_title", "vendor_company", "amount", "status"]
+                        missing_fields = [field for field in required_fields if field not in sample_invoice]
+                        
+                        if not missing_fields:
+                            self.log_result("admin_endpoints", "Invoice Data Structure", True, 
+                                          "All required invoice fields present")
+                        else:
+                            self.log_result("admin_endpoints", "Invoice Data Structure", False, 
+                                          f"Missing fields: {missing_fields}")
+                else:
+                    self.log_result("admin_endpoints", "Admin Invoice Tracking", False, 
+                                  "Invalid response format - expected list")
+            else:
+                self.log_result("admin_endpoints", "Admin Invoice Tracking", False, 
+                              f"Status: {response.status_code}, Response: {response.text}")
+        except Exception as e:
+            self.log_result("admin_endpoints", "Admin Invoice Tracking", False, f"Exception: {str(e)}")
+
+        # Test 7: Test access control - Non-admin users should get 403 Forbidden
+        if self.vendor_token:
+            vendor_headers = {"Authorization": f"Bearer {self.vendor_token}"}
+            
+            # Test vendor access to admin vendor management
+            try:
+                response = requests.get(f"{API_URL}/admin/vendors", headers=vendor_headers)
+                if response.status_code == 403:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to Admin Vendors", True, 
+                                  "Correctly blocked vendor from accessing admin vendor management")
+                else:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to Admin Vendors", False, 
+                                  f"Vendor should not access admin endpoints, got: {response.status_code}")
+            except Exception as e:
+                self.log_result("admin_endpoints", "Access Control - Vendor to Admin Vendors", False, f"Exception: {str(e)}")
+
+            # Test vendor access to admin invoices
+            try:
+                response = requests.get(f"{API_URL}/admin/invoices", headers=vendor_headers)
+                if response.status_code == 403:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to Admin Invoices", True, 
+                                  "Correctly blocked vendor from accessing admin invoices")
+                else:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to Admin Invoices", False, 
+                                  f"Vendor should not access admin endpoints, got: {response.status_code}")
+            except Exception as e:
+                self.log_result("admin_endpoints", "Access Control - Vendor to Admin Invoices", False, f"Exception: {str(e)}")
+
+            # Test vendor access to RFP status update
+            if self.rfp_id:
+                try:
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=closed", headers=vendor_headers)
+                    if response.status_code == 403:
+                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", True, 
+                                      "Correctly blocked vendor from updating RFP status")
+                    else:
+                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, 
+                                      f"Vendor should not update RFP status, got: {response.status_code}")
+                except Exception as e:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, f"Exception: {str(e)}")
+
     def test_dashboard_statistics(self):
         """Test dashboard statistics endpoints"""
         print("\n=== Testing Dashboard Statistics ===")
