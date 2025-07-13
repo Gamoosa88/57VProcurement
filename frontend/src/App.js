@@ -3267,6 +3267,39 @@ export default App; = async () => {
     </div>
   );
 };
+
+// Main App Component
+const MainApp = () => {
+  const { user, loading } = useAuth();
+  const [currentView, setCurrentView] = useState('landing');
+
+  const renderView = () => {
+    // If user is not logged in, show auth flows
+    if (!user) {
+      switch (currentView) {
+        case 'vendor-signup':
+          return <VendorSignupFlow onNavigate={setCurrentView} />;
+        case 'vendor-signin':
+          return <VendorSignin onNavigate={setCurrentView} />;
+        case 'team-login':
+          return <TeamLogin onNavigate={setCurrentView} />;
+        default:
+          return <LandingPage onNavigate={setCurrentView} />;
+      }
+    }
+
+    // If user is logged in, show dashboard views
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'rfps':
+        return <RFPManagement />;
+      case 'proposals':
+        return <ProposalManagement />;
+      case 'evaluation':
+        return <ProposalManagement />;
+      case 'contracts':
+        return <ContractsManagement />;
       case 'vendors':
         return <div className="p-6"><h1 className="text-2xl font-bold">Vendor Directory - Coming Soon</h1></div>;
       default:
