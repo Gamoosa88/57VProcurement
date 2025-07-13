@@ -852,9 +852,8 @@ class ProcurementPortalTester:
             
             for status in ["closed", "active"]:  # Test a couple of status changes
                 try:
-                    # Send status in JSON body
-                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
-                                          json={"status": status}, headers=admin_headers)
+                    # Send status as query parameter
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status={status}", headers=admin_headers)
                     if response.status_code == 200:
                         result = response.json()
                         if f"updated to {status}" in result.get("message", "").lower():
@@ -871,8 +870,7 @@ class ProcurementPortalTester:
 
             # Test invalid status
             try:
-                response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
-                                      json={"status": "invalid_status"}, headers=admin_headers)
+                response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=invalid_status", headers=admin_headers)
                 if response.status_code == 400:
                     self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", True, 
                                   "Correctly rejected invalid status")
@@ -886,8 +884,7 @@ class ProcurementPortalTester:
             if self.vendor_token:
                 vendor_headers = {"Authorization": f"Bearer {self.vendor_token}"}
                 try:
-                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
-                                          json={"status": "closed"}, headers=vendor_headers)
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=closed", headers=vendor_headers)
                     if response.status_code == 403:
                         self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", True, 
                                       "Correctly blocked vendor from updating RFP status")
