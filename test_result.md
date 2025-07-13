@@ -195,6 +195,51 @@ backend:
           agent: "testing"
           comment: "✅ COMPREHENSIVE TESTING COMPLETED: All 9 contract tests passed! Contract management API endpoints working perfectly. Demo contracts created successfully. Vendor-specific access control working. Document download functionality working. Data structure properly structured for frontend. Backend contracts system is production-ready."
 
+  - task: "Admin Vendor Management APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented new admin endpoints for vendor management: GET /api/admin/vendors (get all vendors), PUT /api/admin/vendors/{vendor_id}/approve (approve vendor), PUT /api/admin/vendors/{vendor_id}/reject (reject vendor). All endpoints require admin authentication."
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE TESTING COMPLETED: All admin vendor management endpoints working perfectly! GET /api/admin/vendors returns proper vendor data structure with all required fields (id, email, company_name, is_approved, created_at, cr_number, country). Vendor approval/rejection functionality working correctly. Fixed profile_data null handling issue. Proper access control - only admins can access these endpoints (403 for vendors)."
+
+  - task: "Admin RFP Management APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented admin RFP status management: PUT /api/rfps/{rfp_id}/status endpoint to update RFP status (active, closed, awarded, draft). Includes validation for valid statuses and admin-only access control."
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE TESTING COMPLETED: RFP status update endpoint working perfectly! Successfully tested status updates to 'closed' and 'active'. Proper validation - correctly rejects invalid statuses with 400 error. Access control working - vendors get 403 forbidden when trying to update RFP status. Status parameter correctly passed as query parameter."
+
+  - task: "Admin Invoice Tracking APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented admin invoice tracking: GET /api/admin/invoices endpoint that returns invoice data derived from contracts for admin tracking purposes. Includes invoice ID, contract details, vendor info, amounts, and payment status."
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE TESTING COMPLETED: Admin invoice tracking endpoint working perfectly! Returns proper invoice data structure with all required fields (id, contract_id, contract_title, vendor_company, amount, status, due_date, created_at). Successfully retrieved 3 invoices based on contract data. Proper access control - vendors get 403 forbidden when accessing admin invoices."
+
 frontend:
   - task: "Authentication UI Components"
     implemented: true
