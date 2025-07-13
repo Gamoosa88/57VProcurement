@@ -663,6 +663,119 @@ async def download_contract_document(contract_id: str, document_id: str, current
         logger.error(f"Error downloading document: {e}")
         raise HTTPException(status_code=500, detail="Error downloading document")
 
+async def create_demo_contracts():
+    """Create demo contracts for testing"""
+    try:
+        # Check if contracts already exist
+        existing_contracts = await db.contracts.count_documents({})
+        if existing_contracts > 0:
+            logger.info("Demo contracts already exist, skipping creation")
+            return
+        
+        # Create demo contracts
+        demo_contracts = [
+            {
+                "id": "CTR-2025-001",
+                "rfp_id": "rfp-001",
+                "rfp_title": "Enterprise Cloud Infrastructure Modernization",
+                "vendor_id": "vendor-001",
+                "vendor_company": "TechCorp Solutions",
+                "contract_value": 750000.0,
+                "start_date": datetime(2025, 1, 15),
+                "end_date": datetime(2025, 4, 15),
+                "status": "active",
+                "progress": 65.0,
+                "milestones": [
+                    {"name": "Infrastructure Assessment", "status": "completed", "date": "2025-01-30"},
+                    {"name": "Migration Planning", "status": "completed", "date": "2025-02-15"},
+                    {"name": "Cloud Setup & Testing", "status": "in_progress", "date": "2025-03-01"},
+                    {"name": "Data Migration", "status": "pending", "date": "2025-03-15"},
+                    {"name": "Go-Live & Support", "status": "pending", "date": "2025-04-01"}
+                ],
+                "next_milestone": "Cloud Setup & Testing",
+                "payment_status": "partial_paid",
+                "paid_amount": 487500.0,
+                "pending_amount": 262500.0,
+                "documents": [
+                    {"name": "Signed Contract", "type": "pdf", "size": "2.4 MB", "id": str(uuid.uuid4())},
+                    {"name": "Statement of Work", "type": "pdf", "size": "1.8 MB", "id": str(uuid.uuid4())},
+                    {"name": "Technical Specifications", "type": "pdf", "size": "3.2 MB", "id": str(uuid.uuid4())}
+                ],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "id": "CTR-2024-018",
+                "rfp_id": "rfp-002",
+                "rfp_title": "Security Infrastructure Upgrade",
+                "vendor_id": "vendor-001",
+                "vendor_company": "TechCorp Solutions",
+                "contract_value": 180000.0,
+                "start_date": datetime(2024, 10, 1),
+                "end_date": datetime(2024, 12, 31),
+                "status": "completed",
+                "progress": 100.0,
+                "milestones": [
+                    {"name": "Security Assessment", "status": "completed", "date": "2024-10-15"},
+                    {"name": "Implementation Phase 1", "status": "completed", "date": "2024-11-15"},
+                    {"name": "Implementation Phase 2", "status": "completed", "date": "2024-12-15"},
+                    {"name": "Final Testing & Handover", "status": "completed", "date": "2024-12-30"}
+                ],
+                "payment_status": "fully_paid",
+                "paid_amount": 180000.0,
+                "pending_amount": 0.0,
+                "documents": [
+                    {"name": "Signed Contract", "type": "pdf", "size": "2.1 MB", "id": str(uuid.uuid4())},
+                    {"name": "Completion Certificate", "type": "pdf", "size": "1.2 MB", "id": str(uuid.uuid4())},
+                    {"name": "Security Audit Report", "type": "pdf", "size": "4.5 MB", "id": str(uuid.uuid4())},
+                    {"name": "Final Invoice", "type": "pdf", "size": "890 KB", "id": str(uuid.uuid4())}
+                ],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "id": "CTR-2024-012",
+                "rfp_id": "rfp-003",
+                "rfp_title": "Digital Transformation Consulting",
+                "vendor_id": "vendor-001",
+                "vendor_company": "TechCorp Solutions",
+                "contract_value": 320000.0,
+                "start_date": datetime(2024, 6, 1),
+                "end_date": datetime(2024, 9, 30),
+                "status": "completed",
+                "progress": 100.0,
+                "milestones": [
+                    {"name": "Current State Analysis", "status": "completed", "date": "2024-06-30"},
+                    {"name": "Strategy Development", "status": "completed", "date": "2024-07-31"},
+                    {"name": "Implementation Planning", "status": "completed", "date": "2024-08-31"},
+                    {"name": "Knowledge Transfer", "status": "completed", "date": "2024-09-30"}
+                ],
+                "payment_status": "fully_paid",
+                "paid_amount": 320000.0,
+                "pending_amount": 0.0,
+                "documents": [
+                    {"name": "Signed Contract", "type": "pdf", "size": "2.8 MB", "id": str(uuid.uuid4())},
+                    {"name": "Digital Strategy Report", "type": "pdf", "size": "6.2 MB", "id": str(uuid.uuid4())},
+                    {"name": "Implementation Roadmap", "type": "pdf", "size": "3.1 MB", "id": str(uuid.uuid4())},
+                    {"name": "Final Deliverables", "type": "zip", "size": "15.4 MB", "id": str(uuid.uuid4())}
+                ],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+        ]
+        
+        # Insert demo contracts
+        await db.contracts.insert_many(demo_contracts)
+        logger.info("Demo contracts created successfully")
+        
+    except Exception as e:
+        logger.error(f"Error creating demo contracts: {e}")
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize demo data on startup"""
+    await create_demo_contracts()
+
 # Include the router in the main app
 app.include_router(api_router)
 
