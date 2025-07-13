@@ -2853,8 +2853,20 @@ const MainApp = () => {
         return <ProposalManagement />;
       case 'contracts':
         return <ContractsManagement />;
-// Contracts Management Component
-const ContractsManagement = () => {
+      case 'vendors':
+        return <div className="p-6"><h1 className="text-2xl font-bold">Vendor Directory - Coming Soon</h1></div>;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      setCurrentView('dashboard');
+    } else {
+      setCurrentView('landing');
+    }
+  }, [user]);
   const { user } = useAuth();
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
