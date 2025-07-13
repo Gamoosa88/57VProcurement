@@ -510,6 +510,231 @@ class ProcurementPortalTester:
             except Exception as e:
                 self.log_result("ai_evaluation", "Vendor Evaluation Restriction", False, f"Exception: {str(e)}")
 
+    def test_contracts_management(self):
+        """Test contracts management endpoints"""
+        print("\n=== Testing Contracts Management System ===")
+        
+        # Test 1: Create demo token for vendor-001 (as mentioned in review request)
+        demo_vendor_token = None
+        demo_admin_token = None
+        
+        # First, let's try to create or login as the demo vendor (vendor-001)
+        demo_vendor_data = {
+            "email": "vendor001@techcorp.sa",
+            "password": "DemoVendor123!",
+            "user_type": "vendor",
+            "company_name": "TechCorp Solutions",
+            "username": "vendor001"
+        }
+        
+        try:
+            # Try login first
+            response = requests.post(f"{API_URL}/auth/login", json={
+                "email": demo_vendor_data["email"],
+                "password": demo_vendor_data["password"]
+            })
+            
+            if response.status_code == 200:
+                demo_vendor_token = response.json().get("token")
+                self.log_result("contracts", "Demo Vendor Login", True, "Demo vendor logged in successfully")
+            else:
+                # Try signup if login fails
+                response = requests.post(f"{API_URL}/auth/signup", json=demo_vendor_data)
+                if response.status_code == 200:
+                    demo_vendor_token = response.json().get("token")
+                    self.log_result("contracts", "Demo Vendor Creation", True, "Demo vendor created successfully")
+                else:
+                    self.log_result("contracts", "Demo Vendor Setup", False, f"Failed to setup demo vendor: {response.text}")
+        except Exception as e:
+            self.log_result("contracts", "Demo Vendor Setup", False, f"Exception: {str(e)}")
+        
+        # Test 2: Get contracts with demo vendor token
+        if demo_vendor_token:
+            headers = {"Authorization": f"Bearer {demo_vendor_token}"}
+            try:
+                response = requests.get(f"{API_URL}/contracts", headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    contracts = data.get("contracts", [])
+                    
+                    # Check if we have demo contracts for vendor-001
+                    vendor_contracts = [c for c in contracts if c.get("vendor_id") == "vendor-001"]
+                    
+                    if len(vendor_contracts) > 0:
+                        self.log_result("contracts", "Demo Contracts Retrieval", True, 
+                                      f"Retrieved {len(vendor_contracts)} contracts for vendor-001")
+                        
+                        # Test contract data structure
+                        sample_contract = vendor_contracts[0]
+                        required_fields = ["id", "rfp_title", "vendor_company", "contract_value", 
+                                         "start_date", "end_date", "status", "progress", "milestones"]
+                        
+                        missing_fields = [field for field in required_fields if field not in sample_contract]
+                        
+                        if not missing_fields:
+                            self.log_result("contracts", "Contract Data Structure", True, 
+                                          f"All required fields present in contract data")
+                        else:
+                            self.log_result("contracts", "Contract Data Structure", False, 
+                                          f"Missing fields: {missing_fields}")
+                    else:
+                        self.log_result("contracts", "Demo Contracts Retrieval", False, 
+                                      "No contracts found for vendor-001")
+                else:
+                    self.log_result("contracts", "Demo Contracts Retrieval", False, 
+                                  f"Status: {response.status_code}, Response: {response.text}")
+            except Exception as e:
+                self.log_result("contracts", "Demo Contracts Retrieval", False, f"Exception: {str(e)}")
+        
+        # Test 3: Get specific contract details
+        if demo_vendor_token:
+            headers = {"Authorization": f"Bearer {demo_vendor_token}"}
+            test_contract_id = "CTR-2025-001"  # From demo data
+            
+            try:
+                response = requests.get(f"{API_URL}/contracts/{test_contract_id}", headers=headers)
+                if response.status_code == 200:
+                    contract = response.json()
+                    
+                    # Verify contract details
+                    if (contract.get("id") == test_contract_id and 
+                        contract.get("vendor_id") == "vendor-001"):
+                        self.log_result("contracts", "Specific Contract Retrieval", True, 
+                                      f"Contract {test_contract_id} retrieved successfully")
+                        
+                        # Test contract details structure
+                        expected_fields = ["rfp_title", "contract_value", "progress", "milestones", 
+                                         "payment_status", "documents"]
+                        
+                        present_fields = [field for field in expected_fields if field in contract]
+                        
+                        if len(present_fields) == len(expected_fields):
+                            self.log_result("contracts", "Contract Details Structure", True, 
+                                          f"All expected fields present: {present_fields}")
+                        else:
+                            missing = [f for f in expected_fields if f not in contract]
+                            self.log_result("contracts", "Contract Details Structure", False, 
+                                          f"Missing fields: {missing}")
+                    else:
+                        self.log_result("contracts", "Specific Contract Retrieval", False, 
+                                      "Wrong contract returned or access denied")
+                elif response.status_code == 403:
+                    self.log_result("contracts", "Specific Contract Retrieval", False, 
+                                  "Access denied - vendor cannot access this contract")
+                else:
+                    self.log_result("contracts", "Specific Contract Retrieval", False, 
+                                  f"Status: {response.status_code}, Response: {response.text}")
+            except Exception as e:
+                self.log_result("contracts", "Specific Contract Retrieval", False, f"Exception: {str(e)}")
+        
+        # Test 4: Access control - try to access contracts with different vendor
+        if self.vendor_token:  # Use the regular vendor token from earlier tests
+            headers = {"Authorization": f"Bearer {self.vendor_token}"}
+            try:
+                response = requests.get(f"{API_URL}/contracts", headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    contracts = data.get("contracts", [])
+                    
+                    # This vendor should not see vendor-001's contracts
+                    vendor_001_contracts = [c for c in contracts if c.get("vendor_id") == "vendor-001"]
+                    
+                    if len(vendor_001_contracts) == 0:
+                        self.log_result("contracts", "Access Control - Vendor Isolation", True, 
+                                      "Vendor correctly cannot see other vendor's contracts")
+                    else:
+                        self.log_result("contracts", "Access Control - Vendor Isolation", False, 
+                                      f"Vendor can see {len(vendor_001_contracts)} contracts from other vendor")
+                else:
+                    self.log_result("contracts", "Access Control - Vendor Isolation", False, 
+                                  f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("contracts", "Access Control - Vendor Isolation", False, f"Exception: {str(e)}")
+        
+        # Test 5: Admin can see all contracts
+        if self.admin_token:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            try:
+                response = requests.get(f"{API_URL}/contracts", headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    contracts = data.get("contracts", [])
+                    
+                    if len(contracts) > 0:
+                        self.log_result("contracts", "Admin Access - All Contracts", True, 
+                                      f"Admin can see {len(contracts)} total contracts")
+                    else:
+                        self.log_result("contracts", "Admin Access - All Contracts", False, 
+                                      "Admin cannot see any contracts")
+                else:
+                    self.log_result("contracts", "Admin Access - All Contracts", False, 
+                                  f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("contracts", "Admin Access - All Contracts", False, f"Exception: {str(e)}")
+        
+        # Test 6: Document download endpoint
+        if demo_vendor_token:
+            headers = {"Authorization": f"Bearer {demo_vendor_token}"}
+            test_contract_id = "CTR-2025-001"
+            
+            # First get the contract to find a document ID
+            try:
+                response = requests.get(f"{API_URL}/contracts/{test_contract_id}", headers=headers)
+                if response.status_code == 200:
+                    contract = response.json()
+                    documents = contract.get("documents", [])
+                    
+                    if documents:
+                        doc_id = documents[0].get("id")
+                        if doc_id:
+                            # Test document download
+                            doc_response = requests.get(f"{API_URL}/contracts/{test_contract_id}/documents/{doc_id}", 
+                                                      headers=headers)
+                            if doc_response.status_code == 200:
+                                doc_data = doc_response.json()
+                                if doc_data.get("id") == doc_id:
+                                    self.log_result("contracts", "Document Download", True, 
+                                                  f"Document {doc_data.get('name')} downloaded successfully")
+                                else:
+                                    self.log_result("contracts", "Document Download", False, 
+                                                  "Wrong document returned")
+                            else:
+                                self.log_result("contracts", "Document Download", False, 
+                                              f"Status: {doc_response.status_code}")
+                        else:
+                            self.log_result("contracts", "Document Download", False, 
+                                          "No document ID found")
+                    else:
+                        self.log_result("contracts", "Document Download", False, 
+                                      "No documents found in contract")
+            except Exception as e:
+                self.log_result("contracts", "Document Download", False, f"Exception: {str(e)}")
+        
+        # Test 7: Test demo contracts creation (verify startup data)
+        if self.admin_token:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            try:
+                response = requests.get(f"{API_URL}/contracts", headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    contracts = data.get("contracts", [])
+                    
+                    # Check for expected demo contracts
+                    expected_contract_ids = ["CTR-2025-001", "CTR-2024-018", "CTR-2024-012"]
+                    found_contracts = [c.get("id") for c in contracts if c.get("id") in expected_contract_ids]
+                    
+                    if len(found_contracts) >= 3:
+                        self.log_result("contracts", "Demo Contracts Creation", True, 
+                                      f"Found {len(found_contracts)} demo contracts: {found_contracts}")
+                    else:
+                        self.log_result("contracts", "Demo Contracts Creation", False, 
+                                      f"Only found {len(found_contracts)} demo contracts: {found_contracts}")
+                else:
+                    self.log_result("contracts", "Demo Contracts Creation", False, 
+                                  f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("contracts", "Demo Contracts Creation", False, f"Exception: {str(e)}")
+
     def test_dashboard_statistics(self):
         """Test dashboard statistics endpoints"""
         print("\n=== Testing Dashboard Statistics ===")
