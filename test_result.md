@@ -241,6 +241,18 @@ frontend:
           agent: "main"
           comment: "Implemented proposal submission forms with file upload, proposal listing, and AI evaluation display with detailed scoring breakdown."
 
+  - task: "Contracts Management Interface"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "ContractsManagement component exists with full UI but not connected to backend. Currently shows 'Coming Soon' placeholder. Need to: 1) Connect to backend API 2) Replace placeholder with actual component."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
