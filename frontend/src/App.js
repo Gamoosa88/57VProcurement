@@ -80,6 +80,24 @@ const AuthProvider = ({ children }) => {
   };
 
   const signup = async (userData) => {
+    // Demo mode - accept any signup
+    if (userData.email && userData.password) {
+      const demoUser = {
+        id: 'demo-' + Date.now(),
+        email: userData.email,
+        user_type: userData.user_type,
+        is_approved: userData.user_type === 'admin' ? true : true, // Auto-approve for demo
+        company_name: userData.company_name || (userData.user_type === 'admin' ? '1957 Ventures' : 'Demo Company Inc.')
+      };
+      
+      const demoToken = 'demo-token-' + Date.now();
+      localStorage.setItem('token', demoToken);
+      setToken(demoToken);
+      setUser(demoUser);
+      return { success: true };
+    }
+    
+    // Fallback to real signup if needed
     try {
       const response = await axios.post(`${API}/auth/signup`, userData);
       const { token: newToken, user: userInfo } = response.data;
