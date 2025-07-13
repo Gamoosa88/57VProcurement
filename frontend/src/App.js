@@ -2879,7 +2879,25 @@ const MainApp = () => {
     );
   }
 
-  const fetchContracts = async () => {
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {user && <Navbar onNavigate={setCurrentView} currentView={currentView} />}
+      <main>
+        {renderView()}
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
+
+export default App; = async () => {
     try {
       // Demo contracts data
       const demoContracts = [
