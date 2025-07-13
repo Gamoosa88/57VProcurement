@@ -170,6 +170,23 @@ const LandingPage = ({ onNavigate }) => {
             Streamline your procurement process with AI-powered evaluation and real-time tracking.
           </p>
 
+          {/* Demo Information */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-blue-900 mb-3">🚀 Demo Mode</h3>
+            <p className="text-blue-800 mb-3">
+              You can use any email and password to sign in and explore the platform!
+            </p>
+            <div className="text-sm text-blue-700">
+              <p><strong>Quick Demo Tips:</strong></p>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Use any email/password combination to sign in</li>
+                <li>Emails containing "1957" or "admin" will create admin accounts</li>
+                <li>All other emails will create vendor accounts</li>
+                <li>Experience the full platform with demo data</li>
+              </ul>
+            </div>
+          </div>
+
           {/* Call-to-Action Buttons */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 mb-16">
             {/* Vendor Sign Up */}
