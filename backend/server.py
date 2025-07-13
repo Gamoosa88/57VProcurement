@@ -109,6 +109,26 @@ class AIEvaluation(BaseModel):
     recommendation: str
     detailed_analysis: str
 
+class Contract(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    rfp_id: str
+    rfp_title: str
+    vendor_id: str
+    vendor_company: str
+    contract_value: float
+    start_date: datetime
+    end_date: datetime
+    status: str = "active"  # active, completed, pending
+    progress: float = 0.0
+    milestones: List[Dict] = []
+    next_milestone: Optional[str] = None
+    payment_status: str = "unpaid"  # unpaid, partial_paid, fully_paid
+    paid_amount: float = 0.0
+    pending_amount: float = 0.0
+    documents: List[Dict] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
