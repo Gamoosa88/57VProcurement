@@ -819,7 +819,7 @@ async def create_demo_contracts():
 @app.on_event("startup")
 async def startup_event():
     """Initialize demo data on startup"""
-    await create_demo_contracts()
+    await create_demo_data()
 
 # Include the router in the main app
 app.include_router(api_router)
