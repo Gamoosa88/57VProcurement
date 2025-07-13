@@ -529,7 +529,14 @@ async def get_contracts(current_user: dict = Depends(get_current_user)):
             # Admin sees all contracts
             contracts = await db.contracts.find().to_list(None)
         
-        return {"contracts": contracts}
+        # Convert ObjectId to string and clean up the data
+        cleaned_contracts = []
+        for contract in contracts:
+            if "_id" in contract:
+                del contract["_id"]  # Remove MongoDB ObjectId
+            cleaned_contracts.append(contract)
+        
+        return {"contracts": cleaned_contracts}
     except Exception as e:
         logger.error(f"Error fetching contracts: {e}")
         raise HTTPException(status_code=500, detail="Error fetching contracts")
