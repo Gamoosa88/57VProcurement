@@ -188,28 +188,6 @@ const LandingPage = ({ onNavigate }) => {
             Streamline your procurement process with AI-powered evaluation and real-time tracking.
           </p>
 
-          {/* Demo Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">🚀 Demo Mode</h3>
-            <p className="text-blue-800 mb-3">
-              You can use any email and password to sign in and explore the platform!
-            </p>
-            <div className="text-sm text-blue-700">
-              <p><strong>Quick Demo Tips:</strong></p>
-              <ul className="list-disc list-inside mt-1 space-y-1">
-                <li>Use any email/password combination to sign in</li>
-                <li><strong>1957 Team Dashboard:</strong> Emails with "1957", "admin", or "team" → Admin view</li>
-                <li><strong>Vendor Dashboard:</strong> All other emails → Vendor view</li>
-                <li>Experience the full platform with demo data and AI evaluation</li>
-              </ul>
-              <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-                <p><strong>Try these examples:</strong></p>
-                <p>• Admin: <code className="bg-white px-1 rounded">admin@1957ventures.com</code></p>
-                <p>• Vendor: <code className="bg-white px-1 rounded">vendor@company.com</code></p>
-              </div>
-            </div>
-          </div>
-
           {/* Call-to-Action Buttons */}
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 mb-16">
             {/* Vendor Sign Up */}
