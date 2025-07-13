@@ -264,7 +264,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Contracts Management API"
     - "Contracts Management Interface"
   stuck_tasks: []
   test_all: false
