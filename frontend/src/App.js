@@ -2898,26 +2898,6 @@ function App() {
 }
 
 export default App;
-          rfp_title: 'Enterprise Cloud Infrastructure Modernization',
-          contract_value: 750000,
-          start_date: '2025-01-15',
-          end_date: '2025-04-15',
-          status: 'active',
-          progress: 65,
-          milestones: [
-            { name: 'Infrastructure Assessment', status: 'completed', date: '2025-01-30' },
-            { name: 'Migration Planning', status: 'completed', date: '2025-02-15' },
-            { name: 'Cloud Setup & Testing', status: 'in_progress', date: '2025-03-01' },
-            { name: 'Data Migration', status: 'pending', date: '2025-03-15' },
-            { name: 'Go-Live & Support', status: 'pending', date: '2025-04-01' }
-          ],
-          next_milestone: 'Cloud Setup & Testing',
-          payment_status: 'partial_paid',
-          paid_amount: 487500,
-          pending_amount: 262500,
-          documents: [
-            { name: 'Signed Contract', type: 'pdf', size: '2.4 MB' },
-            { name: 'Statement of Work', type: 'pdf', size: '1.8 MB' },
             { name: 'Technical Specifications', type: 'pdf', size: '3.2 MB' }
           ]
         },
