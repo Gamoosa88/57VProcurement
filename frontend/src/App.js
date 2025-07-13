@@ -1749,6 +1749,7 @@ const ProposalManagement = () => {
   const [technicalFile, setTechnicalFile] = useState(null);
   const [commercialFile, setCommercialFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
     fetchProposals();
@@ -1762,83 +1763,122 @@ const ProposalManagement = () => {
       // Check if using demo token
       const token = localStorage.getItem('token');
       if (token && token.startsWith('demo-token-')) {
-        // Return demo proposals
-        const demoProposals = [
-          {
-            id: 'demo-proposal-1',
-            rfp_id: 'demo-rfp-1',
-            vendor_id: 'demo-vendor-1',
-            vendor_company: 'TechSolutions Saudi Arabia',
-            technical_document: 'demo-tech-doc',
-            commercial_document: 'demo-commercial-doc',
-            submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'evaluated',
-            ai_score: 87.5,
-            ai_evaluation: {
-              commercial_score: 90,
-              technical_score: 82,
-              overall_score: 87.5,
-              strengths: [
-                'Competitive pricing with excellent value proposition',
-                'Strong technical expertise in cloud infrastructure',
-                'Proven track record with similar enterprise projects'
-              ],
-              weaknesses: [
-                'Limited experience with specific AWS advanced services',
-                'Timeline could be more aggressive',
-                'Documentation could be more detailed'
-              ],
-              recommendation: 'Highly Recommended',
-              detailed_analysis: 'This proposal demonstrates exceptional commercial value with competitive pricing and comprehensive service offerings. The technical approach is solid with clear migration strategies and security considerations. The vendor shows strong capability in enterprise cloud transformations.'
-            }
-          },
-          {
-            id: 'demo-proposal-2',
-            rfp_id: 'demo-rfp-2',
-            vendor_id: 'demo-vendor-2',
-            vendor_company: 'AI Innovations Inc.',
-            technical_document: 'demo-tech-doc-2',
-            commercial_document: 'demo-commercial-doc-2',
-            submitted_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'submitted',
-            ai_score: null,
-            ai_evaluation: null
-          },
-          {
-            id: 'demo-proposal-3',
-            rfp_id: 'demo-rfp-3',
-            vendor_id: 'demo-vendor-3',
-            vendor_company: 'SecureGuard Solutions',
-            technical_document: 'demo-tech-doc-3',
-            commercial_document: 'demo-commercial-doc-3',
-            submitted_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'evaluated',
-            ai_score: 76.2,
-            ai_evaluation: {
-              commercial_score: 75,
-              technical_score: 78,
-              overall_score: 76.2,
-              strengths: [
-                'Comprehensive security audit methodology',
-                'Strong compliance expertise',
-                'Good value for comprehensive services'
-              ],
-              weaknesses: [
-                'Higher pricing compared to competitors',
-                'Limited automation tools mentioned',
-                'Implementation timeline seems extended'
-              ],
-              recommendation: 'Recommended',
-              detailed_analysis: 'Solid proposal with good technical approach to cybersecurity. The vendor demonstrates strong compliance knowledge and audit capabilities. Pricing is on the higher side but justified by comprehensive service offerings.'
-            }
-          }
-        ];
-        
-        // Filter based on user type
+        // Return different demo proposals based on user type
         if (user.user_type === 'vendor') {
-          setProposals(demoProposals.slice(0, 2)); // Show fewer for vendor view
+          // Vendor view - their submitted proposals
+          const vendorProposals = [
+            {
+              id: 'demo-proposal-v1',
+              rfp_id: 'demo-rfp-1',
+              rfp_title: 'Enterprise Cloud Infrastructure Modernization',
+              rfp_budget: 750000,
+              vendor_id: user.id,
+              vendor_company: user.company_name,
+              technical_document: 'TechProposal_CloudInfra_v1.pdf',
+              commercial_document: 'CommercialProposal_CloudInfra_v1.xlsx',
+              submitted_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'awarded',
+              ai_score: 87.5,
+              ai_evaluation: {
+                commercial_score: 90,
+                technical_score: 82,
+                overall_score: 87.5,
+                recommendation: 'Highly Recommended',
+                detailed_analysis: 'Excellent proposal with competitive pricing and strong technical approach.'
+              },
+              timeline_days: 90,
+              notes: 'Comprehensive cloud migration approach with proven AWS expertise and competitive pricing.'
+            },
+            {
+              id: 'demo-proposal-v2',
+              rfp_id: 'demo-rfp-2',
+              rfp_title: 'AI-Powered Customer Analytics Platform',
+              rfp_budget: 350000,
+              vendor_id: user.id,
+              vendor_company: user.company_name,
+              technical_document: 'TechProposal_AI_Analytics_v1.pdf',
+              commercial_document: 'CommercialProposal_AI_Analytics_v1.xlsx',
+              submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'under_review',
+              ai_score: null,
+              ai_evaluation: null,
+              timeline_days: 120,
+              notes: 'Machine learning platform with advanced analytics capabilities and real-time insights.'
+            },
+            {
+              id: 'demo-proposal-v3',
+              rfp_id: 'demo-rfp-3',
+              rfp_title: 'Cybersecurity Audit and Implementation',
+              rfp_budget: 180000,
+              vendor_id: user.id,
+              vendor_company: user.company_name,
+              technical_document: 'TechProposal_Security_v1.pdf',
+              commercial_document: 'CommercialProposal_Security_v1.xlsx',
+              submitted_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'rejected',
+              ai_score: 65.2,
+              ai_evaluation: {
+                commercial_score: 60,
+                technical_score: 75,
+                overall_score: 65.2,
+                recommendation: 'Not Recommended',
+                detailed_analysis: 'Proposal pricing was above budget expectations and timeline was too extended.'
+              },
+              timeline_days: 180,
+              notes: 'Comprehensive security audit with penetration testing and compliance framework.'
+            },
+            {
+              id: 'demo-proposal-v4',
+              rfp_id: 'demo-rfp-4',
+              rfp_title: 'Digital Transformation Initiative',
+              rfp_budget: 500000,
+              vendor_id: user.id,
+              vendor_company: user.company_name,
+              technical_document: 'TechProposal_DigitalTransform_v1.pdf',
+              commercial_document: 'CommercialProposal_DigitalTransform_v1.xlsx',
+              submitted_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'submitted',
+              ai_score: null,
+              ai_evaluation: null,
+              timeline_days: 150,
+              notes: 'End-to-end digital transformation with modern tech stack and agile methodology.'
+            }
+          ];
+          setProposals(vendorProposals);
         } else {
-          setProposals(demoProposals);
+          // Admin view - all proposals for evaluation
+          const adminProposals = [
+            {
+              id: 'demo-proposal-1',
+              rfp_id: 'demo-rfp-1',
+              vendor_id: 'demo-vendor-1',
+              vendor_company: 'TechSolutions Saudi Arabia',
+              technical_document: 'demo-tech-doc',
+              commercial_document: 'demo-commercial-doc',
+              submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'evaluated',
+              ai_score: 87.5,
+              ai_evaluation: {
+                commercial_score: 90,
+                technical_score: 82,
+                overall_score: 87.5,
+                strengths: [
+                  'Competitive pricing with excellent value proposition',
+                  'Strong technical expertise in cloud infrastructure',
+                  'Proven track record with similar enterprise projects'
+                ],
+                weaknesses: [
+                  'Limited experience with specific AWS advanced services',
+                  'Timeline could be more aggressive',
+                  'Documentation could be more detailed'
+                ],
+                recommendation: 'Highly Recommended',
+                detailed_analysis: 'This proposal demonstrates exceptional commercial value with competitive pricing and comprehensive service offerings.'
+              }
+            }
+            // ... other admin proposals
+          ];
+          setProposals(adminProposals);
         }
         setLoading(false);
         return;
@@ -1850,7 +1890,6 @@ const ProposalManagement = () => {
       setProposals(response.data);
     } catch (error) {
       console.error('Error fetching proposals:', error);
-      // Fallback to demo data
       setProposals([]);
     }
     setLoading(false);
@@ -1858,6 +1897,32 @@ const ProposalManagement = () => {
 
   const fetchRfps = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (token && token.startsWith('demo-token-')) {
+        const demoRfps = [
+          {
+            id: 'demo-rfp-1',
+            title: 'Enterprise Cloud Infrastructure Modernization',
+            budget: 750000,
+            status: 'active'
+          },
+          {
+            id: 'demo-rfp-2',
+            title: 'AI-Powered Customer Analytics Platform',
+            budget: 350000,
+            status: 'active'
+          },
+          {
+            id: 'demo-rfp-3',
+            title: 'Cybersecurity Audit and Implementation',
+            budget: 180000,
+            status: 'active'
+          }
+        ];
+        setRfps(demoRfps.filter(rfp => rfp.status === 'active'));
+        return;
+      }
+      
       const response = await axios.get(`${API}/rfps`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -1911,85 +1976,344 @@ const ProposalManagement = () => {
     }
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'submitted':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'under_review':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'evaluated':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'awarded':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'rejected':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'submitted':
+        return '📤';
+      case 'under_review':
+        return '🔍';
+      case 'evaluated':
+        return '📊';
+      case 'awarded':
+        return '🏆';
+      case 'rejected':
+        return '❌';
+      default:
+        return '📋';
+    }
+  };
+
+  const filteredProposals = filterStatus === 'all' 
+    ? proposals 
+    : proposals.filter(proposal => proposal.status === filterStatus);
+
   if (loading) return <div className="p-6">Loading...</div>;
 
+  // Vendor View
+  if (user.user_type === 'vendor') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">My Proposals</h1>
+            {user.is_approved && (
+              <button
+                onClick={() => setShowSubmitForm(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+              >
+                + Submit New Proposal
+              </button>
+            )}
+          </div>
+
+          {/* Status Filter */}
+          <div className="mb-6 flex space-x-4">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-blue-50'
+              }`}
+            >
+              All Proposals ({proposals.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('submitted')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'submitted' ? 'bg-yellow-600 text-white' : 'bg-white text-gray-600 hover:bg-yellow-50'
+              }`}
+            >
+              Pending ({proposals.filter(p => p.status === 'submitted' || p.status === 'under_review').length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('awarded')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'awarded' ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-green-50'
+              }`}
+            >
+              Awarded ({proposals.filter(p => p.status === 'awarded').length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('rejected')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'rejected' ? 'bg-red-600 text-white' : 'bg-white text-gray-600 hover:bg-red-50'
+              }`}
+            >
+              Rejected ({proposals.filter(p => p.status === 'rejected').length})
+            </button>
+          </div>
+
+          {/* Proposals Grid */}
+          <div className="grid gap-6">
+            {filteredProposals.map(proposal => (
+              <div key={proposal.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {proposal.rfp_title || `RFP #${proposal.rfp_id}`}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span>📅 Submitted: {new Date(proposal.submitted_at).toLocaleDateString()}</span>
+                      {proposal.rfp_budget && (
+                        <span>💰 Budget: {proposal.rfp_budget.toLocaleString()} SAR</span>
+                      )}
+                      {proposal.timeline_days && (
+                        <span>⏱️ Timeline: {proposal.timeline_days} days</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(proposal.status)}`}>
+                      {getStatusIcon(proposal.status)} {proposal.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                    
+                    {proposal.ai_score && (
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-600">AI Score</p>
+                        <p className="text-lg font-bold text-blue-600">
+                          {proposal.ai_score.toFixed(1)}/100
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Proposal Summary */}
+                {proposal.notes && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-1">Proposal Summary:</p>
+                    <p className="text-gray-600">{proposal.notes}</p>
+                  </div>
+                )}
+
+                {/* Documents */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <span className={proposal.technical_document ? 'text-green-600' : 'text-red-600'}>
+                      {proposal.technical_document ? '✅' : '❌'}
+                    </span>
+                    <span className="text-sm">Technical Document</span>
+                    {proposal.technical_document && typeof proposal.technical_document === 'string' && proposal.technical_document.includes('.') && (
+                      <span className="text-xs text-blue-600">({proposal.technical_document})</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={proposal.commercial_document ? 'text-green-600' : 'text-red-600'}>
+                      {proposal.commercial_document ? '✅' : '❌'}
+                    </span>
+                    <span className="text-sm">Commercial Document</span>
+                    {proposal.commercial_document && typeof proposal.commercial_document === 'string' && proposal.commercial_document.includes('.') && (
+                      <span className="text-xs text-blue-600">({proposal.commercial_document})</span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* AI Evaluation Results */}
+                {proposal.ai_evaluation && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                    <h4 className="font-bold mb-3 text-lg flex items-center">
+                      🧠 Evaluation Results
+                    </h4>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Commercial</p>
+                        <p className="text-xl font-bold text-blue-600">{proposal.ai_evaluation.commercial_score}/100</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Technical</p>
+                        <p className="text-xl font-bold text-green-600">{proposal.ai_evaluation.technical_score}/100</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Overall</p>
+                        <p className="text-xl font-bold text-purple-600">{proposal.ai_evaluation.overall_score}/100</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        proposal.ai_evaluation.recommendation === 'Highly Recommended' ? 'bg-green-100 text-green-800' :
+                        proposal.ai_evaluation.recommendation === 'Recommended' ? 'bg-blue-100 text-blue-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        📋 {proposal.ai_evaluation.recommendation}
+                      </span>
+                    </div>
+                    
+                    {proposal.ai_evaluation.detailed_analysis && (
+                      <div className="mt-3 p-3 bg-white rounded-lg">
+                        <p className="text-sm font-medium text-gray-700 mb-1">📝 Feedback:</p>
+                        <p className="text-sm text-gray-600">{proposal.ai_evaluation.detailed_analysis}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="mt-4 flex space-x-3">
+                  {proposal.status === 'awarded' && (
+                    <button 
+                      onClick={() => alert(`Opening contract management for ${proposal.rfp_title}`)}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    >
+                      🏆 View Contract
+                    </button>
+                  )}
+                  {proposal.status === 'awarded' && (
+                    <button 
+                      onClick={() => alert(`Opening invoice upload for ${proposal.rfp_title}`)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      📄 Upload Invoice
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => alert(`Viewing full details for proposal ${proposal.id}`)}
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                  >
+                    👁️ View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredProposals.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📝</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {filterStatus === 'all' ? 'No proposals submitted yet' : `No ${filterStatus} proposals`}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {filterStatus === 'all' 
+                  ? 'Start by submitting your first proposal to available RFPs'
+                  : `You don't have any ${filterStatus} proposals at the moment`
+                }
+              </p>
+              {filterStatus === 'all' && (
+                <button
+                  onClick={() => setShowSubmitForm(true)}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Submit Your First Proposal
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Submit Form Modal */}
+        {showSubmitForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Submit New Proposal</h2>
+                  <button 
+                    onClick={() => setShowSubmitForm(false)}
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <form onSubmit={submitProposal} className="space-y-6">
+                  <select
+                    value={selectedRfp}
+                    onChange={(e) => setSelectedRfp(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select RFP</option>
+                    {rfps.map(rfp => (
+                      <option key={rfp.id} value={rfp.id}>
+                        {rfp.title} - {rfp.budget?.toLocaleString()} SAR
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Technical Document (Optional)
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setTechnicalFile(e.target.files[0])}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Commercial Document (Optional)
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                      onChange={(e) => setCommercialFile(e.target.files[0])}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="flex space-x-4">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+                    >
+                      Submit Proposal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowSubmitForm(false)}
+                      className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Admin View (existing functionality for 1957 team)
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {user.user_type === 'vendor' ? 'My Proposals' : 'Proposals Inbox'}
-          </h1>
-          {user.user_type === 'vendor' && user.is_approved && (
-            <button
-              onClick={() => setShowSubmitForm(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-            >
-              + Submit New Proposal
-            </button>
-          )}
+          <h1 className="text-3xl font-bold text-gray-900">Proposals Inbox</h1>
         </div>
-
-        {showSubmitForm && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4">Submit New Proposal</h2>
-            <form onSubmit={submitProposal} className="space-y-4">
-              <select
-                value={selectedRfp}
-                onChange={(e) => setSelectedRfp(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select RFP</option>
-                {rfps.map(rfp => (
-                  <option key={rfp.id} value={rfp.id}>
-                    {rfp.title} - {rfp.budget?.toLocaleString()} SAR
-                  </option>
-                ))}
-              </select>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Technical Document (Optional)
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => setTechnicalFile(e.target.files[0])}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Commercial Document (Optional)
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx"
-                  onChange={(e) => setCommercialFile(e.target.files[0])}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-                >
-                  Submit Proposal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowSubmitForm(false)}
-                  className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
 
         <div className="grid gap-6">
           {proposals.map(proposal => (
@@ -2061,30 +2385,32 @@ const ProposalManagement = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <p className="text-sm font-medium text-green-700 mb-2">✅ Strengths:</p>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {proposal.ai_evaluation.strengths?.map((strength, idx) => (
-                          <li key={idx} className="flex items-start">
-                            <span className="text-green-500 mr-2">•</span>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
+                  {proposal.ai_evaluation.strengths && (
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-sm font-medium text-green-700 mb-2">✅ Strengths:</p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {proposal.ai_evaluation.strengths?.map((strength, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-green-500 mr-2">•</span>
+                              {strength}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-red-700 mb-2">⚠️ Areas for Improvement:</p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {proposal.ai_evaluation.weaknesses?.map((weakness, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-red-500 mr-2">•</span>
+                              {weakness}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-red-700 mb-2">⚠️ Areas for Improvement:</p>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {proposal.ai_evaluation.weaknesses?.map((weakness, idx) => (
-                          <li key={idx} className="flex items-start">
-                            <span className="text-red-500 mr-2">•</span>
-                            {weakness}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  )}
 
                   {proposal.ai_evaluation.detailed_analysis && (
                     <div className="mt-4 p-4 bg-white rounded-lg">
