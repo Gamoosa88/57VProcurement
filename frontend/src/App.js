@@ -1336,25 +1336,37 @@ const Dashboard = () => {
               </>
             ) : (
               <>
-                <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left transform hover:scale-105 duration-200">
+                <button 
+                  onClick={() => openModal('create-rfp')}
+                  className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">➕</div>
                   <div className="font-semibold text-gray-900">Create RFP</div>
                   <div className="text-sm text-gray-600">Post new opportunities</div>
                 </button>
-                <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left transform hover:scale-105 duration-200">
-                  <div className="text-2xl mb-2">🧠</div>
-                  <div className="font-semibold text-gray-900">AI Evaluation</div>
+                <button 
+                  onClick={() => openModal('proposal-inbox')}
+                  className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
+                  <div className="text-2xl mb-2">📥</div>
+                  <div className="font-semibold text-gray-900">Proposal Inbox</div>
                   <div className="text-sm text-gray-600">Review proposals</div>
                 </button>
-                <button className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left transform hover:scale-105 duration-200">
+                <button 
+                  onClick={() => openModal('vendor-management')}
+                  className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">👥</div>
                   <div className="font-semibold text-gray-900">Vendor Management</div>
                   <div className="text-sm text-gray-600">Approve vendors</div>
                 </button>
-                <button className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left transform hover:scale-105 duration-200">
+                <button 
+                  onClick={() => openModal('invoice-tracking')}
+                  className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left transform hover:scale-105 duration-200"
+                >
                   <div className="text-2xl mb-2">📊</div>
-                  <div className="font-semibold text-gray-900">Reports</div>
-                  <div className="text-sm text-gray-600">Analytics dashboard</div>
+                  <div className="font-semibold text-gray-900">Invoice Tracking</div>
+                  <div className="text-sm text-gray-600">Track invoices & contracts</div>
                 </button>
               </>
             )}
