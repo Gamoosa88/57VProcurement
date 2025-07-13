@@ -553,6 +553,10 @@ async def get_contract(contract_id: str, current_user: dict = Depends(get_curren
         if current_user["user_type"] == "vendor" and contract["vendor_id"] != current_user["user_id"]:
             raise HTTPException(status_code=403, detail="Access denied")
         
+        # Remove MongoDB ObjectId
+        if "_id" in contract:
+            del contract["_id"]
+        
         return contract
     except HTTPException:
         raise
