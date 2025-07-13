@@ -1630,6 +1630,8 @@ const MainApp = () => {
   useEffect(() => {
     if (user) {
       setCurrentView('dashboard');
+    } else {
+      setCurrentView('landing');
     }
   }, [user]);
 
