@@ -2867,15 +2867,17 @@ const MainApp = () => {
       setCurrentView('landing');
     }
   }, [user]);
-  const { user } = useAuth();
-  const [contracts, setContracts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [notification, setNotification] = useState(null);
 
-  useEffect(() => {
-    fetchContracts();
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const fetchContracts = async () => {
     try {
