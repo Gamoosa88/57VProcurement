@@ -2316,7 +2316,7 @@ const RFPManagement = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Cancel RFP</h2>
                 <button 
                   onClick={() => setShowCancelRfpModal(false)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-gray-500 hover:text-gray-700 text-3xl font-bold w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                 >
                   ×
                 </button>
@@ -2365,9 +2365,9 @@ const RFPManagement = () => {
                 </button>
                 <button
                   onClick={() => setShowCancelRfpModal(false)}
-                  className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors font-medium"
                 >
-                  Keep RFP Active
+                  ← Keep RFP Active
                 </button>
               </div>
             </div>
