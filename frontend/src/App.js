@@ -2452,7 +2452,39 @@ const ContractsManagement = () => {
 
   const fetchContracts = async () => {
     try {
-      // Demo contracts data
+      const token = localStorage.getItem('token');
+      
+      // For demo tokens, still fetch from API but with proper token handling
+      if (token && token.startsWith('demo-token-')) {
+        // Use demo vendor ID for demo tokens
+        const response = await axios.get(`${API}/contracts`, {
+          headers: {
+            'Authorization': `Bearer demo-token-vendor-001`
+          }
+        });
+        
+        // If API call fails, use demo data
+        if (response.data && response.data.contracts) {
+          setContracts(response.data.contracts);
+          setLoading(false);
+          return;
+        }
+      } else if (token) {
+        // For real tokens, make normal API call
+        const response = await axios.get(`${API}/contracts`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.data && response.data.contracts) {
+          setContracts(response.data.contracts);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Fallback to demo data if API fails
       const demoContracts = [
         {
           id: 'CTR-2025-001',
@@ -2474,9 +2506,9 @@ const ContractsManagement = () => {
           paid_amount: 487500,
           pending_amount: 262500,
           documents: [
-            { name: 'Signed Contract', type: 'pdf', size: '2.4 MB' },
-            { name: 'Statement of Work', type: 'pdf', size: '1.8 MB' },
-            { name: 'Technical Specifications', type: 'pdf', size: '3.2 MB' }
+            { name: 'Signed Contract', type: 'pdf', size: '2.4 MB', id: 'doc-001' },
+            { name: 'Statement of Work', type: 'pdf', size: '1.8 MB', id: 'doc-002' },
+            { name: 'Technical Specifications', type: 'pdf', size: '3.2 MB', id: 'doc-003' }
           ]
         },
         {
@@ -2497,10 +2529,10 @@ const ContractsManagement = () => {
           paid_amount: 180000,
           pending_amount: 0,
           documents: [
-            { name: 'Signed Contract', type: 'pdf', size: '2.1 MB' },
-            { name: 'Completion Certificate', type: 'pdf', size: '1.2 MB' },
-            { name: 'Security Audit Report', type: 'pdf', size: '4.5 MB' },
-            { name: 'Final Invoice', type: 'pdf', size: '890 KB' }
+            { name: 'Signed Contract', type: 'pdf', size: '2.1 MB', id: 'doc-004' },
+            { name: 'Completion Certificate', type: 'pdf', size: '1.2 MB', id: 'doc-005' },
+            { name: 'Security Audit Report', type: 'pdf', size: '4.5 MB', id: 'doc-006' },
+            { name: 'Final Invoice', type: 'pdf', size: '890 KB', id: 'doc-007' }
           ]
         },
         {
@@ -2521,10 +2553,10 @@ const ContractsManagement = () => {
           paid_amount: 320000,
           pending_amount: 0,
           documents: [
-            { name: 'Signed Contract', type: 'pdf', size: '2.8 MB' },
-            { name: 'Digital Strategy Report', type: 'pdf', size: '6.2 MB' },
-            { name: 'Implementation Roadmap', type: 'pdf', size: '3.1 MB' },
-            { name: 'Final Deliverables', type: 'zip', size: '15.4 MB' }
+            { name: 'Signed Contract', type: 'pdf', size: '2.8 MB', id: 'doc-008' },
+            { name: 'Digital Strategy Report', type: 'pdf', size: '6.2 MB', id: 'doc-009' },
+            { name: 'Implementation Roadmap', type: 'pdf', size: '3.1 MB', id: 'doc-010' },
+            { name: 'Final Deliverables', type: 'zip', size: '15.4 MB', id: 'doc-011' }
           ]
         }
       ];
@@ -2533,6 +2565,36 @@ const ContractsManagement = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching contracts:', error);
+      // Fallback to demo data on error
+      const demoContracts = [
+        {
+          id: 'CTR-2025-001',
+          rfp_title: 'Enterprise Cloud Infrastructure Modernization',
+          contract_value: 750000,
+          start_date: '2025-01-15',
+          end_date: '2025-04-15',
+          status: 'active',
+          progress: 65,
+          milestones: [
+            { name: 'Infrastructure Assessment', status: 'completed', date: '2025-01-30' },
+            { name: 'Migration Planning', status: 'completed', date: '2025-02-15' },
+            { name: 'Cloud Setup & Testing', status: 'in_progress', date: '2025-03-01' },
+            { name: 'Data Migration', status: 'pending', date: '2025-03-15' },
+            { name: 'Go-Live & Support', status: 'pending', date: '2025-04-01' }
+          ],
+          next_milestone: 'Cloud Setup & Testing',
+          payment_status: 'partial_paid',
+          paid_amount: 487500,
+          pending_amount: 262500,
+          documents: [
+            { name: 'Signed Contract', type: 'pdf', size: '2.4 MB', id: 'doc-001' },
+            { name: 'Statement of Work', type: 'pdf', size: '1.8 MB', id: 'doc-002' },
+            { name: 'Technical Specifications', type: 'pdf', size: '3.2 MB', id: 'doc-003' }
+          ]
+        }
+      ];
+      
+      setContracts(demoContracts);
       setLoading(false);
     }
   };
