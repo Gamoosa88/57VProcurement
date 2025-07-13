@@ -792,6 +792,7 @@ class ProcurementPortalTester:
         self.test_rfp_management()
         self.test_proposal_system()
         self.test_ai_evaluation_system()
+        self.test_contracts_management()
         self.test_dashboard_statistics()
         
         self.print_summary()
