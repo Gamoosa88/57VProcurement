@@ -56,8 +56,14 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     // Demo mode - accept any credentials
     if (email && password) {
-      // Create demo user based on email pattern
-      const isAdmin = email.includes('1957') || email.includes('admin');
+      // Create demo user based on email pattern - be more specific for 1957 team
+      const isAdmin = email.toLowerCase().includes('1957') || 
+                     email.toLowerCase().includes('admin') ||
+                     email.toLowerCase().includes('@1957ventures') ||
+                     email.toLowerCase().includes('team');
+      
+      console.log('Email:', email, 'IsAdmin:', isAdmin); // Debug log
+      
       const demoUser = {
         id: 'demo-' + Date.now(),
         email: email,
@@ -65,6 +71,8 @@ const AuthProvider = ({ children }) => {
         is_approved: true,
         company_name: isAdmin ? '1957 Ventures' : 'Demo Company Inc.'
       };
+      
+      console.log('Created user:', demoUser); // Debug log
       
       const demoToken = 'demo-token-' + Date.now();
       localStorage.setItem('token', demoToken);
