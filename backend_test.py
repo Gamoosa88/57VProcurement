@@ -123,6 +123,8 @@ class ProcurementPortalTester:
             if response.status_code == 200:
                 data = response.json()
                 if data.get("token"):
+                    self.admin_token = data.get("token")
+                    self.admin_user_id = data.get("user", {}).get("id")
                     self.log_result("authentication", "Admin Login", True, "Login successful with valid token")
                 else:
                     self.log_result("authentication", "Admin Login", False, "No token in response")
@@ -143,6 +145,8 @@ class ProcurementPortalTester:
             if response.status_code == 200:
                 data = response.json()
                 if data.get("token"):
+                    self.vendor_token = data.get("token")
+                    self.vendor_user_id = data.get("user", {}).get("id")
                     self.log_result("authentication", "Vendor Login", True, "Login successful with valid token")
                 else:
                     self.log_result("authentication", "Vendor Login", False, "No token in response")
