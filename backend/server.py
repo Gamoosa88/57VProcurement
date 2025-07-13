@@ -832,8 +832,8 @@ async def get_vendors(current_user: dict = Depends(get_current_user)):
             "username": vendor.get("username", ""),
             "is_approved": vendor.get("is_approved", False),
             "created_at": vendor.get("created_at"),
-            "cr_number": vendor.get("profile_data", {}).get("cr_number", ""),
-            "country": vendor.get("profile_data", {}).get("country", "")
+            "cr_number": (vendor.get("profile_data") or {}).get("cr_number", ""),
+            "country": (vendor.get("profile_data") or {}).get("country", "")
         }
         for vendor in vendors
     ]
