@@ -816,6 +816,105 @@ async def create_demo_contracts():
     # This function is kept for backward compatibility but now calls create_demo_data
     await create_demo_data()
 
+# Admin-specific endpoints for vendor management
+@api_router.get("/admin/vendors")
+async def get_vendors(current_user: dict = Depends(get_current_user)):
+    """Get all vendors for admin management"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin users can access vendor management")
+    
+    vendors = await db.users.find({"user_type": "vendor"}).to_list(None)
+    return [
+        {
+            "id": vendor["id"],
+            "email": vendor["email"],
+            "company_name": vendor.get("company_name", ""),
+            "username": vendor.get("username", ""),
+            "is_approved": vendor.get("is_approved", False),
+            "created_at": vendor.get("created_at"),
+            "cr_number": vendor.get("profile_data", {}).get("cr_number", ""),
+            "country": vendor.get("profile_data", {}).get("country", "")
+        }
+        for vendor in vendors
+    ]
+
+@api_router.put("/admin/vendors/{vendor_id}/approve")
+async def approve_vendor(vendor_id: str, current_user: dict = Depends(get_current_user)):
+    """Approve a vendor"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin users can approve vendors")
+    
+    result = await db.users.update_one(
+        {"id": vendor_id, "user_type": "vendor"},
+        {"$set": {"is_approved": True}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    return {"message": "Vendor approved successfully"}
+
+@api_router.put("/admin/vendors/{vendor_id}/reject")
+async def reject_vendor(vendor_id: str, current_user: dict = Depends(get_current_user)):
+    """Reject a vendor"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin users can reject vendors")
+    
+    result = await db.users.update_one(
+        {"id": vendor_id, "user_type": "vendor"},
+        {"$set": {"is_approved": False}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    return {"message": "Vendor rejected successfully"}
+
+@api_router.put("/rfps/{rfp_id}/status")
+async def update_rfp_status(rfp_id: str, status: str, current_user: dict = Depends(get_current_user)):
+    """Update RFP status (publish, close, etc.)"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin users can update RFP status")
+    
+    valid_statuses = ["active", "closed", "awarded", "draft"]
+    if status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    result = await db.rfps.update_one(
+        {"id": rfp_id},
+        {"$set": {"status": status}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="RFP not found")
+    
+    return {"message": f"RFP status updated to {status}"}
+
+@api_router.get("/admin/invoices")
+async def get_all_invoices(current_user: dict = Depends(get_current_user)):
+    """Get all invoices for admin tracking"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin users can view all invoices")
+    
+    # For demo purposes, return invoice data from contracts
+    contracts = await db.contracts.find().to_list(None)
+    
+    invoices = []
+    for contract in contracts:
+        if contract.get("payment_status") in ["partial_paid", "fully_paid"]:
+            invoices.append({
+                "id": f"INV-{contract['id']}",
+                "contract_id": contract["id"],
+                "contract_title": contract["rfp_title"],
+                "vendor_company": contract["vendor_company"],
+                "amount": contract["paid_amount"],
+                "status": "paid" if contract["payment_status"] == "fully_paid" else "partial",
+                "due_date": contract.get("end_date"),
+                "created_at": contract.get("created_at")
+            })
+    
+    return invoices
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize demo data on startup"""
