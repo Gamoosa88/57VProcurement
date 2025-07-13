@@ -852,8 +852,9 @@ class ProcurementPortalTester:
             
             for status in ["closed", "active"]:  # Test a couple of status changes
                 try:
-                    # Use query parameter for status
-                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status={status}", headers=admin_headers)
+                    # Send status in JSON body
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
+                                          json={"status": status}, headers=admin_headers)
                     if response.status_code == 200:
                         result = response.json()
                         if f"updated to {status}" in result.get("message", "").lower():
@@ -870,7 +871,8 @@ class ProcurementPortalTester:
 
             # Test invalid status
             try:
-                response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status?status=invalid_status", headers=admin_headers)
+                response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
+                                      json={"status": "invalid_status"}, headers=admin_headers)
                 if response.status_code == 400:
                     self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", True, 
                                   "Correctly rejected invalid status")
@@ -879,6 +881,21 @@ class ProcurementPortalTester:
                                   f"Should have rejected invalid status, got: {response.status_code}")
             except Exception as e:
                 self.log_result("admin_endpoints", "RFP Status Update - Invalid Status", False, f"Exception: {str(e)}")
+
+            # Test vendor access to RFP status update
+            if self.vendor_token:
+                vendor_headers = {"Authorization": f"Bearer {self.vendor_token}"}
+                try:
+                    response = requests.put(f"{API_URL}/rfps/{self.rfp_id}/status", 
+                                          json={"status": "closed"}, headers=vendor_headers)
+                    if response.status_code == 403:
+                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", True, 
+                                      "Correctly blocked vendor from updating RFP status")
+                    else:
+                        self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, 
+                                      f"Vendor should not update RFP status, got: {response.status_code}")
+                except Exception as e:
+                    self.log_result("admin_endpoints", "Access Control - Vendor to RFP Status", False, f"Exception: {str(e)}")
 
         # Test 6: GET /api/admin/invoices - Get all invoices for admin tracking
         try:
