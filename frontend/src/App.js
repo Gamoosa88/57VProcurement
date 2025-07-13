@@ -1680,6 +1680,9 @@ const Dashboard = () => {
 
       {/* Render Modal */}
       {renderModal()}
+      
+      {/* Chatbot */}
+      <Chatbot userType={user.user_type} />
     </div>
   );
 };
