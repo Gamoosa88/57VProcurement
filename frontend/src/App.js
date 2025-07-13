@@ -2861,7 +2861,7 @@ const ContractsManagement = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleDownload(contract.id, doc.name)}
+                        onClick={() => handleDownload(contract.id, doc.name, doc.id)}
                         className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center space-x-1"
                       >
                         <span>📥</span>
