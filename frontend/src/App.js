@@ -1215,12 +1215,99 @@ const ProposalManagement = () => {
 
   const fetchProposals = async () => {
     try {
+      // Check if using demo token
+      const token = localStorage.getItem('token');
+      if (token && token.startsWith('demo-token-')) {
+        // Return demo proposals
+        const demoProposals = [
+          {
+            id: 'demo-proposal-1',
+            rfp_id: 'demo-rfp-1',
+            vendor_id: 'demo-vendor-1',
+            vendor_company: 'TechSolutions Saudi Arabia',
+            technical_document: 'demo-tech-doc',
+            commercial_document: 'demo-commercial-doc',
+            submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'evaluated',
+            ai_score: 87.5,
+            ai_evaluation: {
+              commercial_score: 90,
+              technical_score: 82,
+              overall_score: 87.5,
+              strengths: [
+                'Competitive pricing with excellent value proposition',
+                'Strong technical expertise in cloud infrastructure',
+                'Proven track record with similar enterprise projects'
+              ],
+              weaknesses: [
+                'Limited experience with specific AWS advanced services',
+                'Timeline could be more aggressive',
+                'Documentation could be more detailed'
+              ],
+              recommendation: 'Highly Recommended',
+              detailed_analysis: 'This proposal demonstrates exceptional commercial value with competitive pricing and comprehensive service offerings. The technical approach is solid with clear migration strategies and security considerations. The vendor shows strong capability in enterprise cloud transformations.'
+            }
+          },
+          {
+            id: 'demo-proposal-2',
+            rfp_id: 'demo-rfp-2',
+            vendor_id: 'demo-vendor-2',
+            vendor_company: 'AI Innovations Inc.',
+            technical_document: 'demo-tech-doc-2',
+            commercial_document: 'demo-commercial-doc-2',
+            submitted_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'submitted',
+            ai_score: null,
+            ai_evaluation: null
+          },
+          {
+            id: 'demo-proposal-3',
+            rfp_id: 'demo-rfp-3',
+            vendor_id: 'demo-vendor-3',
+            vendor_company: 'SecureGuard Solutions',
+            technical_document: 'demo-tech-doc-3',
+            commercial_document: 'demo-commercial-doc-3',
+            submitted_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'evaluated',
+            ai_score: 76.2,
+            ai_evaluation: {
+              commercial_score: 75,
+              technical_score: 78,
+              overall_score: 76.2,
+              strengths: [
+                'Comprehensive security audit methodology',
+                'Strong compliance expertise',
+                'Good value for comprehensive services'
+              ],
+              weaknesses: [
+                'Higher pricing compared to competitors',
+                'Limited automation tools mentioned',
+                'Implementation timeline seems extended'
+              ],
+              recommendation: 'Recommended',
+              detailed_analysis: 'Solid proposal with good technical approach to cybersecurity. The vendor demonstrates strong compliance knowledge and audit capabilities. Pricing is on the higher side but justified by comprehensive service offerings.'
+            }
+          }
+        ];
+        
+        // Filter based on user type
+        if (user.user_type === 'vendor') {
+          setProposals(demoProposals.slice(0, 2)); // Show fewer for vendor view
+        } else {
+          setProposals(demoProposals);
+        }
+        setLoading(false);
+        return;
+      }
+      
       const response = await axios.get(`${API}/proposals`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setProposals(response.data);
     } catch (error) {
       console.error('Error fetching proposals:', error);
+      // Fallback to demo data
+      setProposals([]);
     }
     setLoading(false);
   };
