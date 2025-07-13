@@ -2117,11 +2117,11 @@ const RFPManagement = () => {
 
       {/* View Proposals Modal */}
       {showViewProposalsModal && selectedRfp && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-90vh overflow-y-auto">
-            <div className="p-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Proposals for: {selectedRfp.title}</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Proposals for: {selectedRfp.title}</h2>
                 <button 
                   onClick={() => setShowViewProposalsModal(false)}
                   className="text-gray-500 hover:text-gray-700 text-3xl font-bold w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
@@ -2129,15 +2129,21 @@ const RFPManagement = () => {
                   ×
                 </button>
               </div>
-              
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-bold text-blue-900 mb-2">RFP Details:</h3>
-                <p className="text-blue-800 font-semibold">Budget: {selectedRfp.budget?.toLocaleString()} SAR</p>
-                <p className="text-blue-700 text-sm">Deadline: {new Date(selectedRfp.deadline).toLocaleDateString()}</p>
-                <p className="text-blue-700 text-sm">Status: {selectedRfp.status}</p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-bold text-blue-900 mb-1">RFP Details:</h3>
+                <div className="text-sm">
+                  <span className="text-blue-800 font-semibold">Budget: {selectedRfp.budget?.toLocaleString()} SAR</span>
+                  <span className="mx-2">•</span>
+                  <span className="text-blue-700">Deadline: {new Date(selectedRfp.deadline).toLocaleDateString()}</span>
+                  <span className="mx-2">•</span>
+                  <span className="text-blue-700">Status: {selectedRfp.status}</span>
+                </div>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[
                   { id: 'P001', vendor: 'TechCorp Solutions', submitted: '2025-01-15', status: 'Under Review', score: 85.1, amount: '720,000 SAR', timeline: '90 days' },
                   { id: 'P002', vendor: 'DataSoft Inc.', submitted: '2025-01-14', status: 'Evaluated', score: 78.5, amount: '680,000 SAR', timeline: '105 days' },
@@ -2145,14 +2151,13 @@ const RFPManagement = () => {
                   { id: 'P004', vendor: 'InnovateCorp', submitted: '2025-01-12', status: 'Rejected', score: 62.3, amount: '650,000 SAR', timeline: '80 days' }
                 ].map(proposal => (
                   <div key={proposal.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-bold text-gray-900">{proposal.vendor}</h3>
-                        <p className="text-gray-600">Proposal #{proposal.id}</p>
-                        <p className="text-sm text-gray-500">Submitted: {proposal.submitted}</p>
+                        <h3 className="font-bold text-gray-900 text-sm">{proposal.vendor}</h3>
+                        <p className="text-gray-600 text-xs">#{proposal.id} • {proposal.submitted}</p>
                       </div>
                       <div className="text-right">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           proposal.status === 'Evaluated' ? 'bg-green-100 text-green-800' :
                           proposal.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
                           proposal.status === 'Rejected' ? 'bg-red-100 text-red-800' :
@@ -2161,35 +2166,35 @@ const RFPManagement = () => {
                           {proposal.status}
                         </span>
                         {proposal.score && (
-                          <div className="mt-1 text-sm font-semibold text-blue-600">
-                            AI Score: {proposal.score}/100
+                          <div className="mt-1 text-xs font-semibold text-blue-600">
+                            AI: {proposal.score}/100
                           </div>
                         )}
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
                       <div>
-                        <p className="text-sm text-gray-600">Proposed Amount</p>
+                        <p className="text-gray-600">Amount</p>
                         <p className="font-semibold">{proposal.amount}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Timeline</p>
+                        <p className="text-gray-600">Timeline</p>
                         <p className="font-semibold">{proposal.timeline}</p>
                       </div>
                     </div>
                     
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-2">
                       <button 
                         onClick={() => alert(`Viewing detailed proposal from ${proposal.vendor}`)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
                       >
-                        📄 View Full Proposal
+                        📄 View Details
                       </button>
                       {proposal.status === 'Pending' && (
                         <button 
                           onClick={() => alert(`Evaluating proposal from ${proposal.vendor} with AI`)}
-                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                          className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition-colors"
                         >
                           🧠 AI Evaluate
                         </button>
@@ -2197,24 +2202,24 @@ const RFPManagement = () => {
                       {proposal.status === 'Evaluated' && (
                         <button 
                           onClick={() => alert(`Awarding contract to ${proposal.vendor}`)}
-                          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                          className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-colors"
                         >
-                          🏆 Award Contract
+                          🏆 Award
                         </button>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-              
-              <div className="mt-6 flex justify-center">
-                <button
-                  onClick={() => setShowViewProposalsModal(false)}
-                  className="bg-gray-600 text-white py-3 px-8 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-                >
-                  ← Back to RFP Management
-                </button>
-              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={() => setShowViewProposalsModal(false)}
+                className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm"
+              >
+                ← Back to RFP Management
+              </button>
             </div>
           </div>
         </div>
