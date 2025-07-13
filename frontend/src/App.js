@@ -1373,6 +1373,9 @@ const RFPManagement = () => {
   const { user } = useAuth();
   const [rfps, setRfps] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [selectedRfp, setSelectedRfp] = useState(null);
+  const [proposalFormData, setProposalFormData] = useState({});
   const [newRfp, setNewRfp] = useState({
     title: '',
     description: '',
@@ -1473,6 +1476,27 @@ const RFPManagement = () => {
     } catch (error) {
       console.error('Error creating RFP:', error);
     }
+  };
+
+  // Handle proposal submission for specific RFP
+  const handleSubmitProposal = (rfp) => {
+    setSelectedRfp(rfp);
+    setProposalFormData({ rfpTitle: rfp.title, rfpId: rfp.id });
+    setShowProposalModal(true);
+  };
+
+  const submitProposal = (e) => {
+    e.preventDefault();
+    alert(`Proposal submitted for: ${selectedRfp.title}\nTechnical Doc: ${proposalFormData.technicalDoc ? 'Uploaded' : 'Not uploaded'}\nCommercial Doc: ${proposalFormData.commercialDoc ? 'Uploaded' : 'Not uploaded'}\nNotes: ${proposalFormData.notes || 'None'}`);
+    setShowProposalModal(false);
+    setSelectedRfp(null);
+    setProposalFormData({});
+  };
+
+  const closeProposalModal = () => {
+    setShowProposalModal(false);
+    setSelectedRfp(null);
+    setProposalFormData({});
   };
 
   if (loading) return <div className="p-6">Loading...</div>;
@@ -1601,14 +1625,117 @@ const RFPManagement = () => {
               </div>
 
               {user.user_type === 'vendor' && user.is_approved && (
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Submit Proposal
+                <button 
+                  onClick={() => handleSubmitProposal(rfp)}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+                >
+                  <span>📝</span>
+                  <span>Submit Proposal</span>
                 </button>
               )}
             </div>
           ))}
         </div>
       </div>
+
+      {/* Proposal Submission Modal */}
+      {showProposalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Submit Proposal</h2>
+                <button 
+                  onClick={closeProposalModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-bold text-blue-900 mb-2">Selected RFP:</h3>
+                <p className="text-blue-800 font-semibold">{selectedRfp?.title}</p>
+                <p className="text-blue-700 text-sm">Budget: {selectedRfp?.budget?.toLocaleString()} SAR</p>
+                <p className="text-blue-700 text-sm">Deadline: {new Date(selectedRfp?.deadline).toLocaleDateString()}</p>
+              </div>
+              
+              <form onSubmit={submitProposal} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Technical Document
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setProposalFormData({...proposalFormData, technicalDoc: e.target.files[0]})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Upload your technical proposal (PDF, DOC, DOCX)</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Commercial Document
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                      onChange={(e) => setProposalFormData({...proposalFormData, commercialDoc: e.target.files[0]})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Upload your commercial proposal (PDF, Excel, etc.)</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Proposal Summary
+                  </label>
+                  <textarea
+                    value={proposalFormData.notes || ''}
+                    onChange={(e) => setProposalFormData({...proposalFormData, notes: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
+                    placeholder="Briefly describe your approach and why you're the best fit for this project..."
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Proposed Timeline (Days)
+                  </label>
+                  <input
+                    type="number"
+                    value={proposalFormData.timeline || ''}
+                    onChange={(e) => setProposalFormData({...proposalFormData, timeline: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 90"
+                    required
+                  />
+                </div>
+
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Submit Proposal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeProposalModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
