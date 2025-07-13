@@ -198,10 +198,15 @@ const LandingPage = ({ onNavigate }) => {
               <p><strong>Quick Demo Tips:</strong></p>
               <ul className="list-disc list-inside mt-1 space-y-1">
                 <li>Use any email/password combination to sign in</li>
-                <li>Emails containing "1957" or "admin" will create admin accounts</li>
-                <li>All other emails will create vendor accounts</li>
-                <li>Experience the full platform with demo data</li>
+                <li><strong>1957 Team Dashboard:</strong> Emails with "1957", "admin", or "team" → Admin view</li>
+                <li><strong>Vendor Dashboard:</strong> All other emails → Vendor view</li>
+                <li>Experience the full platform with demo data and AI evaluation</li>
               </ul>
+              <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+                <p><strong>Try these examples:</strong></p>
+                <p>• Admin: <code className="bg-white px-1 rounded">admin@1957ventures.com</code></p>
+                <p>• Vendor: <code className="bg-white px-1 rounded">vendor@company.com</code></p>
+              </div>
             </div>
           </div>
 
