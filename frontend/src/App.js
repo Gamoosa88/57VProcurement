@@ -2468,6 +2468,8 @@ const MainApp = () => {
         return <ProposalManagement />;
       case 'evaluation':
         return <ProposalManagement />;
+      case 'contracts':
+        return <ContractsManagement />;
 // Contracts Management Component
 const ContractsManagement = () => {
   const { user } = useAuth();
