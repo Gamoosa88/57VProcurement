@@ -42,7 +42,8 @@ class ProcurementPortalTester:
             "proposal_system": {"passed": 0, "failed": 0, "details": []},
             "ai_evaluation": {"passed": 0, "failed": 0, "details": []},
             "dashboard": {"passed": 0, "failed": 0, "details": []},
-            "contracts": {"passed": 0, "failed": 0, "details": []}
+            "contracts": {"passed": 0, "failed": 0, "details": []},
+            "admin_endpoints": {"passed": 0, "failed": 0, "details": []}
         }
 
     def log_result(self, category, test_name, success, details=""):
