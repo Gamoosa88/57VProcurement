@@ -180,6 +180,18 @@ backend:
           agent: "testing"
           comment: "✅ COMPREHENSIVE TESTING COMPLETED: Dashboard statistics working perfectly. Admin dashboard shows: total_rfps, total_proposals, pending_vendors. Vendor dashboard shows: total_proposals, awarded_contracts, active_rfps. Role-based data filtering working correctly."
 
+  - task: "Contracts Management API"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement backend API endpoints for contracts: GET /api/contracts (vendor-specific), GET /api/contracts/{id}, contract document handling, and status updates."
+
 frontend:
   - task: "Authentication UI Components"
     implemented: true
