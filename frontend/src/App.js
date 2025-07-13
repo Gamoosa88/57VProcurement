@@ -534,7 +534,10 @@ const VendorSignin = ({ onNavigate }) => {
     setError('');
 
     const result = await login(formData.email, formData.password);
-    if (!result.success) {
+    if (result.success) {
+      // Successful login - will be handled by MainApp useEffect
+      // No need to manually navigate as the user state change will trigger dashboard view
+    } else {
       setError(result.error);
     }
     setLoading(false);
