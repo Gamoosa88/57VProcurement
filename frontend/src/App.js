@@ -1716,6 +1716,9 @@ const RFPManagement = () => {
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [selectedRfp, setSelectedRfp] = useState(null);
   const [proposalFormData, setProposalFormData] = useState({});
+  const [showViewProposalsModal, setShowViewProposalsModal] = useState(false);
+  const [showMakeDecisionModal, setShowMakeDecisionModal] = useState(false);
+  const [showCancelRfpModal, setShowCancelRfpModal] = useState(false);
   const [newRfp, setNewRfp] = useState({
     title: '',
     description: '',
