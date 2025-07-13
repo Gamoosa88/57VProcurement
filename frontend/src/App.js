@@ -2114,6 +2114,266 @@ const RFPManagement = () => {
           </div>
         </div>
       )}
+
+      {/* View Proposals Modal */}
+      {showViewProposalsModal && selectedRfp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-90vh overflow-y-auto">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Proposals for: {selectedRfp.title}</h2>
+                <button 
+                  onClick={() => setShowViewProposalsModal(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-bold text-blue-900 mb-2">RFP Details:</h3>
+                <p className="text-blue-800 font-semibold">Budget: {selectedRfp.budget?.toLocaleString()} SAR</p>
+                <p className="text-blue-700 text-sm">Deadline: {new Date(selectedRfp.deadline).toLocaleDateString()}</p>
+                <p className="text-blue-700 text-sm">Status: {selectedRfp.status}</p>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'P001', vendor: 'TechCorp Solutions', submitted: '2025-01-15', status: 'Under Review', score: 85.1, amount: '720,000 SAR', timeline: '90 days' },
+                  { id: 'P002', vendor: 'DataSoft Inc.', submitted: '2025-01-14', status: 'Evaluated', score: 78.5, amount: '680,000 SAR', timeline: '105 days' },
+                  { id: 'P003', vendor: 'SecureNet Ltd.', submitted: '2025-01-13', status: 'Pending', score: null, amount: '750,000 SAR', timeline: '120 days' },
+                  { id: 'P004', vendor: 'InnovateCorp', submitted: '2025-01-12', status: 'Rejected', score: 62.3, amount: '650,000 SAR', timeline: '80 days' }
+                ].map(proposal => (
+                  <div key={proposal.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{proposal.vendor}</h3>
+                        <p className="text-gray-600">Proposal #{proposal.id}</p>
+                        <p className="text-sm text-gray-500">Submitted: {proposal.submitted}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          proposal.status === 'Evaluated' ? 'bg-green-100 text-green-800' :
+                          proposal.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
+                          proposal.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {proposal.status}
+                        </span>
+                        {proposal.score && (
+                          <div className="mt-1 text-sm font-semibold text-blue-600">
+                            AI Score: {proposal.score}/100
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div>
+                        <p className="text-sm text-gray-600">Proposed Amount</p>
+                        <p className="font-semibold">{proposal.amount}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Timeline</p>
+                        <p className="font-semibold">{proposal.timeline}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => alert(`Viewing detailed proposal from ${proposal.vendor}`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        📄 View Full Proposal
+                      </button>
+                      {proposal.status === 'Pending' && (
+                        <button 
+                          onClick={() => alert(`Evaluating proposal from ${proposal.vendor} with AI`)}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                        >
+                          🧠 AI Evaluate
+                        </button>
+                      )}
+                      {proposal.status === 'Evaluated' && (
+                        <button 
+                          onClick={() => alert(`Awarding contract to ${proposal.vendor}`)}
+                          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                        >
+                          🏆 Award Contract
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowViewProposalsModal(false)}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Make Decision Modal */}
+      {showMakeDecisionModal && selectedRfp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-90vh overflow-y-auto">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Make Decision - {selectedRfp.title}</h2>
+                <button 
+                  onClick={() => setShowMakeDecisionModal(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <h3 className="font-bold text-purple-900 mb-2">Decision Making Process:</h3>
+                <p className="text-purple-800 text-sm">Review AI evaluations and make final decisions on proposals</p>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { id: 'P001', vendor: 'TechCorp Solutions', status: 'Evaluated', score: 85.1, amount: '720,000 SAR', recommendation: 'Highly Recommended' },
+                  { id: 'P002', vendor: 'DataSoft Inc.', status: 'Evaluated', score: 78.5, amount: '680,000 SAR', recommendation: 'Recommended' },
+                  { id: 'P003', vendor: 'SecureNet Ltd.', status: 'Pending', score: null, amount: '750,000 SAR', recommendation: 'Awaiting Evaluation' }
+                ].map(proposal => (
+                  <div key={proposal.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{proposal.vendor}</h3>
+                        <p className="text-gray-600">Proposal #{proposal.id}</p>
+                        <p className="text-sm text-gray-500">Amount: {proposal.amount}</p>
+                      </div>
+                      <div className="text-right">
+                        {proposal.score && (
+                          <div className="text-lg font-semibold text-blue-600 mb-1">
+                            AI Score: {proposal.score}/100
+                          </div>
+                        )}
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          proposal.recommendation === 'Highly Recommended' ? 'bg-green-100 text-green-800' :
+                          proposal.recommendation === 'Recommended' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {proposal.recommendation}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => alert(`Accepting proposal from ${proposal.vendor}`)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
+                        disabled={proposal.status === 'Pending'}
+                      >
+                        ✅ Accept
+                      </button>
+                      <button 
+                        onClick={() => alert(`Rejecting proposal from ${proposal.vendor}`)}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      >
+                        ❌ Reject
+                      </button>
+                      <button 
+                        onClick={() => alert(`Requesting revision from ${proposal.vendor}`)}
+                        className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                      >
+                        📝 Request Revision
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowMakeDecisionModal(false)}
+                  className="w-full bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel RFP Modal */}
+      {showCancelRfpModal && selectedRfp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Cancel RFP</h2>
+                <button 
+                  onClick={() => setShowCancelRfpModal(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
+                <h3 className="font-bold text-red-900 mb-2">⚠️ Warning: This action cannot be undone</h3>
+                <p className="text-red-800 text-sm">Cancelling this RFP will notify all vendors and close the opportunity permanently.</p>
+              </div>
+              
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-bold text-gray-900 mb-2">RFP Details:</h3>
+                <p className="text-gray-800 font-semibold">{selectedRfp.title}</p>
+                <p className="text-gray-600 text-sm">Budget: {selectedRfp.budget?.toLocaleString()} SAR</p>
+                <p className="text-gray-600 text-sm">Deadline: {new Date(selectedRfp.deadline).toLocaleDateString()}</p>
+                <p className="text-gray-600 text-sm">Status: {selectedRfp.status}</p>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cancellation Reason (Required)
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent h-24"
+                  placeholder="Please provide a reason for cancelling this RFP..."
+                  required
+                />
+              </div>
+              
+              <div className="mb-6">
+                <label className="flex items-center">
+                  <input type="checkbox" className="mr-2" required />
+                  <span className="text-sm text-gray-700">I confirm that I want to cancel this RFP and notify all vendors</span>
+                </label>
+              </div>
+              
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => {
+                    alert(`RFP "${selectedRfp.title}" has been cancelled and vendors have been notified.`);
+                    setShowCancelRfpModal(false);
+                  }}
+                  className="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  🗑️ Cancel RFP
+                </button>
+                <button
+                  onClick={() => setShowCancelRfpModal(false)}
+                  className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Keep RFP Active
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
